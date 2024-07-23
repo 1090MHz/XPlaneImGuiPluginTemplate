@@ -4,6 +4,7 @@
 #include <XPLMDisplay.h>
 #include "imgui.h"
 #include <vector>
+#include <functional>
 
 namespace ImGui
 {
@@ -43,9 +44,10 @@ namespace ImGui
 
         // Typedef for ImGui render callback function pointers
         typedef void (*ImGuiRenderCallback)();
+        // typedef std::function<void()> ImGuiRenderCallback;
 
         // Vector of ImGui render callback functions
-        extern std::vector<ImGuiRenderCallback> g_ImGuiRenderCallbacks;
+        // extern std::vector<ImGuiRenderCallback> g_ImGuiRenderCallbacks;
 
         // Initialization and Shutdown
         void Init();     // Initialize ImGui for X-Plane. Add to XPluginStart.
@@ -54,9 +56,12 @@ namespace ImGui
         // Frame Handling
         void BeginFrame(); // Begins a new ImGui frame. Used at the beginning of drawing callback.
         void EndFrame();   // Ends the current ImGui frame and renders it. Used at the end of drawing callback.
+        int RenderImGuiFrame(XPLMDrawingPhase phase, int isBefore, void *refcon);
 
         // Rendering or Draw Callbacks
-        void RegisterImGuiRenderCallback(ImGuiRenderCallback callback);
+        // visibilityFlag is optional and defaults to nullptr.
+        // ImGuiRenderCall will be called only if visibilityFlag is nullptr or is true.
+        void RegisterImGuiRenderCallback(ImGuiRenderCallback callback, bool *visibilityFlag = nullptr);
         void UnregisterImGuiRenderCallback(ImGuiRenderCallback callback);
         void EnsureImGuiDrawCallbackRegistered();   // Ensures that the ImGui draw callback is registered.
         void EnsureImGuiDrawCallbackUnregistered(); // Ensures that the ImGui draw callback is unregistered.

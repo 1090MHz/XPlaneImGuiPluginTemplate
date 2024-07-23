@@ -1,5 +1,9 @@
 #include "imgui_impl_xplane.h"
 
+#include <vector>
+
+#include <XPLMDisplay.h>
+
 // ImGui library core
 #include <imgui.h>
 
@@ -19,8 +23,27 @@ namespace ImGui
         // Global variable to store the ImGui context
         ImGuiContext *g_ImGuiContext;
 
+        // Typedef for ImGui render callback function pointers - defined in imgui_impl_xplane.h
+        // typedef std::function<void()> ImGuiRenderCallback;
+
+        // Structure to hold ImGui render callbacks along with visibility flags
+        struct ImGuiRenderCallbackEntry
+        {
+            ImGuiRenderCallback callback;
+            bool *visibilityFlag;
+
+            // Define equality comparison operator
+            friend bool operator==(const ImGuiRenderCallbackEntry &lhs, const ImGuiRenderCallbackEntry &rhs)
+            {
+                // Assuming ImGuiRenderCallback is a function pointer or similar,
+                // and we're comparing pointers for equality.
+                // Adjust the comparison logic based on actual types and needs.
+                return lhs.callback == rhs.callback && lhs.visibilityFlag == rhs.visibilityFlag;
+            }
+        };
+
         // Vector to store ImGui render callbacks
-        std::vector<void (*)()> g_ImGuiRenderCallbacks;
+        std::vector<ImGuiRenderCallbackEntry> g_ImGuiRenderCallbacks;
 
         // Flag to check if the draw callback is registered
         static bool isDrawCallbackRegistered = false;
@@ -194,11 +217,12 @@ namespace ImGui
         {
             BeginFrame();
 
-            for (auto &callback : g_ImGuiRenderCallbacks)
+            for (auto &callbackEntry : g_ImGuiRenderCallbacks)
             {
-                if (callback)
+                // Check if the visibility flag is true before executing the callback if (*(callbackEntry.visibilityFlag))
+                if (!callbackEntry.visibilityFlag || *callbackEntry.visibilityFlag)
                 {
-                    callback();
+                    callbackEntry.callback();
                 }
             }
 
@@ -243,18 +267,25 @@ namespace ImGui
             }
         }
 
-        void RegisterImGuiRenderCallback(ImGuiRenderCallback callback)
+        void RegisterImGuiRenderCallback(ImGuiRenderCallback callback, bool *visibilityFlag)
         {
             if (g_ImGuiRenderCallbacks.empty())
             {
                 EnsureImGuiDrawCallbackRegistered();
             }
-            g_ImGuiRenderCallbacks.push_back(callback);
+            // Store the callback along with its visibility flag
+            ImGuiRenderCallbackEntry callbackEntry = {callback, visibilityFlag};
+            g_ImGuiRenderCallbacks.push_back(callbackEntry);
         }
 
         void UnregisterImGuiRenderCallback(ImGuiRenderCallback callback)
         {
-            auto it = std::find(g_ImGuiRenderCallbacks.begin(), g_ImGuiRenderCallbacks.end(), callback);
+            // Find the callback in the vector and remove it
+            auto it = std::find_if(g_ImGuiRenderCallbacks.begin(), g_ImGuiRenderCallbacks.end(),
+                                   [callback](const ImGui::XP::ImGuiRenderCallbackEntry &item) -> bool
+                                   {
+                                       return item.callback == callback;
+                                   });
             if (it != g_ImGuiRenderCallbacks.end())
             {
                 g_ImGuiRenderCallbacks.erase(it);
