@@ -2,6 +2,8 @@
 #define IMGUI_IMPL_XPLANE_H
 
 #include <XPLMDisplay.h>
+#include "imgui.h"
+#include <vector>
 
 namespace ImGui
 {
@@ -28,16 +30,36 @@ namespace ImGui
         // };
 
         // Global variable declarations
+        // External variables are declared in imgui_impl_xplane.cpp
+
+        // X-Plane window identifier
         extern XPLMWindowID g_window;
+
+        // Geometry for the X-Plane window
         extern WindowGeometry g_WindowGeometry;
+
+        // ImGui context pointer
+        extern ImGuiContext *g_ImGuiContext;
+
+        // Typedef for ImGui render callback function pointers
+        typedef void (*ImGuiRenderCallback)();
+
+        // Vector of ImGui render callback functions
+        extern std::vector<ImGuiRenderCallback> g_ImGuiRenderCallbacks;
 
         // Initialization and Shutdown
         void Init();     // Initialize ImGui for X-Plane. Add to XPluginStart.
         void Shutdown(); // Shutdown ImGui for X-Plane. Add to XPluginStop.
 
         // Frame Handling
-        void NewFrame(); // Begins a new ImGui frame. Used at the beginning of drawing callback.
-        void EndFrame(); // Ends the current ImGui frame and renders it. Used at the end of drawing callback.
+        void BeginFrame(); // Begins a new ImGui frame. Used at the beginning of drawing callback.
+        void EndFrame();   // Ends the current ImGui frame and renders it. Used at the end of drawing callback.
+
+        // Rendering or Draw Callbacks
+        void RegisterImGuiRenderCallback(ImGuiRenderCallback callback);
+        void UnregisterImGuiRenderCallback(ImGuiRenderCallback callback);
+        void EnsureImGuiDrawCallbackRegistered();   // Ensures that the ImGui draw callback is registered.
+        void EnsureImGuiDrawCallbackUnregistered(); // Ensures that the ImGui draw callback is unregistered.
 
         // Window Management
         void UpdateWindowGeometry();              // Updates the window geometry based on X-Plane's window. Required for ImGui window positioning.

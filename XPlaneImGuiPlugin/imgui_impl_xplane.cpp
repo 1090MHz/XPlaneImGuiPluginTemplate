@@ -6,9 +6,6 @@
 // OpenGL3 backend for ImGui
 #include <backends/imgui_impl_opengl3.h>
 
-// ImGui Demo Window Renderer
-#include "ImGuiDemoRenderer.h"
-
 namespace ImGui
 {
     namespace XP
@@ -18,6 +15,15 @@ namespace ImGui
 
         // Global variable to store the window's current geometry
         WindowGeometry g_WindowGeometry;
+
+        // Global variable to store the ImGui context
+        ImGuiContext *g_ImGuiContext;
+
+        // Vector to store ImGui render callbacks
+        std::vector<void (*)()> g_ImGuiRenderCallbacks;
+
+        // Flag to check if the draw callback is registered
+        static bool isDrawCallbackRegistered = false;
 
         // Caution: The menu bar height is not included in the screen height and it may vary across platforms
         // int g_menuBarHeight = 30; // Height of the menu bar
@@ -84,7 +90,7 @@ namespace ImGui
             return xplm_CursorDefault; // Return the default cursor for other cases
         }
 
-        void DrawWindowCallback(XPLMWindowID inWindowID, void *inRefcon)
+        static void DrawWindowCallback(XPLMWindowID inWindowID, void *inRefcon)
         {
             // Do not draw anything for transparency
         }
@@ -94,7 +100,7 @@ namespace ImGui
         static int imgui_wheel_handler(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon) { return 0; }
         static void imgui_key_handler(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus) {}
 
-        void InitializeTransparentImGuiOverlay()
+        static void InitializeTransparentImGuiOverlay()
         {
             XPLMCreateWindow_t params{};
             params.structSize = sizeof(params);
@@ -158,7 +164,7 @@ namespace ImGui
         }
 
         // Initializes a new ImGui frame. Call this at the beginning of your drawing callback.
-        static void BeginFrame()
+        void BeginFrame()
         {
             ImGui_ImplOpenGL3_NewFrame();
             NewFrame(); // Adapt as necessary.
@@ -166,7 +172,7 @@ namespace ImGui
         }
 
         // Finalizes the ImGui frame and renders it to the screen. Call this at the end of your drawing callback.
-        static void EndFrame()
+        void EndFrame()
         {
             ImGui::Render();
             ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -187,7 +193,15 @@ namespace ImGui
         static int RenderImGuiFrame(XPLMDrawingPhase phase, int isBefore, void *refcon)
         {
             BeginFrame();
-            RenderDemoWindows();
+
+            for (auto &callback : g_ImGuiRenderCallbacks)
+            {
+                if (callback)
+                {
+                    callback();
+                }
+            }
+
             EndFrame();
 
             return 1;
@@ -196,12 +210,11 @@ namespace ImGui
         // ImGui X-Plane integration initialization
         void Init()
         {
-
             InitializeTransparentImGuiOverlay();
 
             // Initialize ImGui for X-Plane OpenGL rendering
             IMGUI_CHECKVERSION();
-            ImGui::CreateContext();
+            g_ImGuiContext = ImGui::CreateContext();
             ImGui_ImplOpenGL3_Init("#version 330");
 
             // Additional ImGui setup can be done here
@@ -210,9 +223,46 @@ namespace ImGui
             ImGui::StyleColorsDark(); // Use the dark style
             // ImGui::StyleColorsClassic(); // Use the classic style
             // ImGui::StyleColorsLight(); // Use the light style
+        }
 
-            // Register the ImGui draw callback
-            XPLMRegisterDrawCallback(RenderImGuiFrame, xplm_Phase_Window, 0, NULL);
+        static void EnsureImGuiDrawCallbackRegistered()
+        {
+            if (!isDrawCallbackRegistered)
+            {
+                XPLMRegisterDrawCallback(RenderImGuiFrame, xplm_Phase_Window, 0, NULL);
+                isDrawCallbackRegistered = true;
+            }
+        }
+
+        static void EnsureImGuiDrawCallbackUnregistered()
+        {
+            if (isDrawCallbackRegistered)
+            {
+                XPLMUnregisterDrawCallback(RenderImGuiFrame, xplm_Phase_Window, 0, NULL);
+                isDrawCallbackRegistered = false;
+            }
+        }
+
+        void RegisterImGuiRenderCallback(ImGuiRenderCallback callback)
+        {
+            if (g_ImGuiRenderCallbacks.empty())
+            {
+                EnsureImGuiDrawCallbackRegistered();
+            }
+            g_ImGuiRenderCallbacks.push_back(callback);
+        }
+
+        void UnregisterImGuiRenderCallback(ImGuiRenderCallback callback)
+        {
+            auto it = std::find(g_ImGuiRenderCallbacks.begin(), g_ImGuiRenderCallbacks.end(), callback);
+            if (it != g_ImGuiRenderCallbacks.end())
+            {
+                g_ImGuiRenderCallbacks.erase(it);
+                if (g_ImGuiRenderCallbacks.empty())
+                {
+                    EnsureImGuiDrawCallbackUnregistered();
+                }
+            }
         }
 
         // ImGui X-Plane integration shutdown
