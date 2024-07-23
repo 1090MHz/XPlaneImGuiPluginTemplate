@@ -1,10 +1,16 @@
 #include "imgui_impl_xplane.h"
 
+// Standard library headers
 #include <vector>
+#include <string>
+#include <filesystem>
 
+// X-Plane SDK headers
 #include <XPLMDisplay.h>
+#include <XPLMPlugin.h>
+#include <XPLMUtilities.h> // For XPLMDebugString
 
-// ImGui library core
+// ImGui core library
 #include <imgui.h>
 
 // OpenGL3 backend for ImGui
