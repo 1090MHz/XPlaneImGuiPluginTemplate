@@ -253,6 +253,22 @@ namespace ImGui
             ImGui::StyleColorsDark();
             // ImGui::StyleColorsClassic();
             // ImGui::StyleColorsLight();
+
+            // Determine the plugin's directory
+            char pluginPath[512];
+            XPLMGetPluginInfo(XPLMGetMyID(), nullptr, pluginPath, nullptr, nullptr);
+
+            // Construct the path to imgui.ini within the plugin's directory
+            std::filesystem::path path(pluginPath);
+            std::filesystem::path iniFileName = "imgui.ini";
+            std::filesystem::path iniPath = path.parent_path() / iniFileName;
+
+            // Debug: Print or log the iniPath to verify its correctness
+            XPLMDebugString(("ImGui ini path: " + iniPath.string() + "\n").c_str());
+
+            // Set ImGui to save its configuration to the constructed path
+            ImGuiIO &io = ImGui::GetIO();
+            io.IniFilename = iniPath.string().c_str();
         }
 
         static void EnsureImGuiDrawCallbackRegistered()
