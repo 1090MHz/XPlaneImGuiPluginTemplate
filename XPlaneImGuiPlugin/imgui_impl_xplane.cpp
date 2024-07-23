@@ -250,9 +250,9 @@ namespace ImGui
             // Additional ImGui setup can be done here
 
             // Setup Dear ImGui style - uncomment the style you want to use
-            ImGui::StyleColorsDark(); // Use the dark style
-            // ImGui::StyleColorsClassic(); // Use the classic style
-            // ImGui::StyleColorsLight(); // Use the light style
+            ImGui::StyleColorsDark();
+            // ImGui::StyleColorsClassic();
+            // ImGui::StyleColorsLight();
         }
 
         static void EnsureImGuiDrawCallbackRegistered()
