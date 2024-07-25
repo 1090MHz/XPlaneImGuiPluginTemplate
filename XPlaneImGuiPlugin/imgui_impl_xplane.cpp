@@ -39,7 +39,7 @@ namespace ImGui
         int ImGuiRenderCallbackWrapper::s_nextId = 0;
 
         // Vector to store ImGui render callbacks
-        std::vector<ImGuiRenderCallbackWrapper> g_ImGuiRenderCallbacks;
+        static std::vector<ImGuiRenderCallbackWrapper> g_ImGuiRenderCallbacks;
 
         // Flag to check if the draw callback is registered
         static bool isDrawCallbackRegistered = false;
