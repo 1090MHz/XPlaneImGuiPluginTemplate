@@ -16,12 +16,18 @@
 // OpenGL3 backend for ImGui
 #include <backends/imgui_impl_opengl3.h>
 
+// Logging macro for function calls with plugin name
+#define LOG_CALL(func, ...)                                            \
+    XPLMDebugString("XPlaneImGuiPluginTemplate: " #func " called.\n"); \
+    func(__VA_ARGS__);                                                 \
+    XPLMDebugString("XPlaneImGuiPluginTemplate: " #func " finished.\n");
+
 namespace ImGui
 {
     namespace XP
     {
         // An opaque handle to the window we will create
-        XPLMWindowID g_window;
+        XPLMWindowID xplmWindowID;
 
         // Global variable to store the window's current geometry
         WindowGeometry g_WindowGeometry;
@@ -32,24 +38,11 @@ namespace ImGui
         // Typedef for ImGui render callback function pointers - defined in imgui_impl_xplane.h
         // typedef std::function<void()> ImGuiRenderCallback;
 
-        // Structure to hold ImGui render callbacks along with visibility flags
-        struct ImGuiRenderCallbackEntry
-        {
-            ImGuiRenderCallback callback;
-            bool *visibilityFlag;
-
-            // Define equality comparison operator
-            friend bool operator==(const ImGuiRenderCallbackEntry &lhs, const ImGuiRenderCallbackEntry &rhs)
-            {
-                // Assuming ImGuiRenderCallback is a function pointer or similar,
-                // and we're comparing pointers for equality.
-                // Adjust the comparison logic based on actual types and needs.
-                return lhs.callback == rhs.callback && lhs.visibilityFlag == rhs.visibilityFlag;
-            }
-        };
+        // Unique identifier for ImGuiRenderCallbackWrapper callbacks
+        int ImGuiRenderCallbackWrapper::s_nextId = 0;
 
         // Vector to store ImGui render callbacks
-        std::vector<ImGuiRenderCallbackEntry> g_ImGuiRenderCallbacks;
+        std::vector<ImGuiRenderCallbackWrapper> g_ImGuiRenderCallbacks;
 
         // Flag to check if the draw callback is registered
         static bool isDrawCallbackRegistered = false;
@@ -61,7 +54,7 @@ namespace ImGui
         static void UpdateWindowGeometry()
         {
             // Update g_WindowGeometry with the new geometry of the "Minimal Window"
-            XPLMGetWindowGeometry(g_window, &g_WindowGeometry.left, &g_WindowGeometry.top, &g_WindowGeometry.right, &g_WindowGeometry.bottom);
+            XPLMGetWindowGeometry(xplmWindowID, &g_WindowGeometry.left, &g_WindowGeometry.top, &g_WindowGeometry.right, &g_WindowGeometry.bottom);
             // Update width and height based on the obtained geometry
             g_WindowGeometry.width = g_WindowGeometry.right - g_WindowGeometry.left;
             g_WindowGeometry.height = g_WindowGeometry.top - g_WindowGeometry.bottom;
@@ -175,8 +168,7 @@ namespace ImGui
             g_WindowGeometry.bottom = params.bottom;
 
             // Create the window
-            XPLMWindowID xplmWindowID = XPLMCreateWindowEx(&params);
-            g_window = xplmWindowID;
+            xplmWindowID = XPLMCreateWindowEx(&params);
         }
 
         // Prepare ImGui for a new frame in the X-Plane environment
@@ -225,10 +217,10 @@ namespace ImGui
 
             for (auto &callbackEntry : g_ImGuiRenderCallbacks)
             {
-                // Check if the visibility flag is true before executing the callback if (*(callbackEntry.visibilityFlag))
-                if (!callbackEntry.visibilityFlag || *callbackEntry.visibilityFlag)
+                // Check if the visibility flag is true before executing the callback
+                if (callbackEntry.getVisibilityFlag())
                 {
-                    callbackEntry.callback();
+                    callbackEntry.getCallback()();
                 }
             }
 
@@ -289,25 +281,19 @@ namespace ImGui
             }
         }
 
-        void RegisterImGuiRenderCallback(ImGuiRenderCallback callback, bool *visibilityFlag)
+        void RegisterImGuiRenderCallback(ImGuiRenderCallbackWrapper callback)
         {
             if (g_ImGuiRenderCallbacks.empty())
             {
                 EnsureImGuiDrawCallbackRegistered();
             }
-            // Store the callback along with its visibility flag
-            ImGuiRenderCallbackEntry callbackEntry = {callback, visibilityFlag};
-            g_ImGuiRenderCallbacks.push_back(callbackEntry);
+            g_ImGuiRenderCallbacks.push_back(callback);
         }
 
         void UnregisterImGuiRenderCallback(ImGuiRenderCallback callback)
         {
             // Find the callback in the vector and remove it
-            auto it = std::find_if(g_ImGuiRenderCallbacks.begin(), g_ImGuiRenderCallbacks.end(),
-                                   [callback](const ImGui::XP::ImGuiRenderCallbackEntry &item) -> bool
-                                   {
-                                       return item.callback == callback;
-                                   });
+            auto it = std::find(g_ImGuiRenderCallbacks.begin(), g_ImGuiRenderCallbacks.end(), callback);
             if (it != g_ImGuiRenderCallbacks.end())
             {
                 g_ImGuiRenderCallbacks.erase(it);

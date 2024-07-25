@@ -34,7 +34,7 @@ namespace ImGui
         // External variables are declared in imgui_impl_xplane.cpp
 
         // X-Plane window identifier
-        extern XPLMWindowID g_window;
+        extern XPLMWindowID xplmWindowID;
 
         // Geometry for the X-Plane window
         extern WindowGeometry g_WindowGeometry;
@@ -43,11 +43,39 @@ namespace ImGui
         extern ImGuiContext *g_ImGuiContext;
 
         // Typedef for ImGui render callback function pointers
-        typedef void (*ImGuiRenderCallback)();
+        // typedef void (*ImGuiRenderCallback)();
         // typedef std::function<void()> ImGuiRenderCallback;
 
         // Vector of ImGui render callback functions
         // extern std::vector<ImGuiRenderCallback> g_ImGuiRenderCallbacks;
+
+        class ImGuiRenderCallbackWrapper
+        {
+        public:
+            ImGuiRenderCallbackWrapper(std::function<void()> callback, bool *visibilityFlag = nullptr)
+                : m_callback(callback), m_visibilityFlag(visibilityFlag), m_id(s_nextId++) {}
+
+            void operator()() const
+            {
+                if (!m_visibilityFlag || *m_visibilityFlag)
+                    m_callback();
+            }
+            bool operator==(const ImGuiRenderCallbackWrapper &other) const { return m_id == other.m_id; }
+
+            // Getter methods
+            bool getVisibilityFlag() const { return m_visibilityFlag ? *m_visibilityFlag : true; }
+            std::function<void()> getCallback() const { return m_callback; }
+
+        private:
+            std::function<void()> m_callback;
+            bool *m_visibilityFlag;
+            int m_id;
+            static int s_nextId;
+        };
+
+        typedef ImGuiRenderCallbackWrapper ImGuiRenderCallback;
+
+        extern std::vector<ImGuiRenderCallbackWrapper> g_ImGuiRenderCallbacks;
 
         // Initialization and Shutdown
         void Init();     // Initialize ImGui for X-Plane. Add to XPluginStart.
@@ -61,7 +89,7 @@ namespace ImGui
         // Rendering or Draw Callbacks
         // visibilityFlag is optional and defaults to nullptr.
         // ImGuiRenderCall will be called only if visibilityFlag is nullptr or is true.
-        void RegisterImGuiRenderCallback(ImGuiRenderCallback callback, bool *visibilityFlag = nullptr);
+        void RegisterImGuiRenderCallback(ImGuiRenderCallbackWrapper callback);
         void UnregisterImGuiRenderCallback(ImGuiRenderCallback callback);
         void EnsureImGuiDrawCallbackRegistered();   // Ensures that the ImGui draw callback is registered.
         void EnsureImGuiDrawCallbackUnregistered(); // Ensures that the ImGui draw callback is unregistered.
