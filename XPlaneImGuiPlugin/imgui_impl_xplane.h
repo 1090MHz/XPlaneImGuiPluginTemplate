@@ -17,19 +17,6 @@ namespace ImGui
             int width, height;
         };
 
-        // struct WindowGeometry
-        // {
-        //     int left, top, right, bottom;
-        //     int width, height; // Added width and height members
-
-        //     // Default constructor
-        //     WindowGeometry() : left(0), top(0), right(0), bottom(0), width(0), height(0) {}
-
-        //     // Constructor with parameters
-        //     WindowGeometry(int l, int t, int r, int b)
-        //         : left(l), top(t), right(r), bottom(b), width(r - l), height(b - t) {}
-        // };
-
         // Global variable declarations
         // External variables are declared in imgui_impl_xplane.cpp
 
@@ -41,13 +28,6 @@ namespace ImGui
 
         // ImGui context pointer
         extern ImGuiContext *g_ImGuiContext;
-
-        // Typedef for ImGui render callback function pointers
-        // typedef void (*ImGuiRenderCallback)();
-        // typedef std::function<void()> ImGuiRenderCallback;
-
-        // Vector of ImGui render callback functions
-        // extern std::vector<ImGuiRenderCallback> g_ImGuiRenderCallbacks;
 
         class ImGuiRenderCallbackWrapper
         {
@@ -86,31 +66,24 @@ namespace ImGui
         void EndFrame();   // Ends the current ImGui frame and renders it. Used at the end of drawing callback.
         int RenderImGuiFrame(XPLMDrawingPhase phase, int isBefore, void *refcon);
 
-        // Rendering or Draw Callbacks
-        // visibilityFlag is optional and defaults to nullptr.
-        // ImGuiRenderCall will be called only if visibilityFlag is nullptr or is true.
+        // Registering and Unregistering ImGui Render Callbacks
         void RegisterImGuiRenderCallback(ImGuiRenderCallbackWrapper callback);
         void UnregisterImGuiRenderCallback(ImGuiRenderCallback callback);
-        void EnsureImGuiDrawCallbackRegistered();   // Ensures that the ImGui draw callback is registered.
-        void EnsureImGuiDrawCallbackUnregistered(); // Ensures that the ImGui draw callback is unregistered.
+
+        // Ensuring ImGui Draw Callback is Registered/Unregistered
+        void EnsureImGuiDrawCallbackRegistered();
+        void EnsureImGuiDrawCallbackUnregistered();
 
         // Window Management
-        void UpdateWindowGeometry();              // Updates the window geometry based on X-Plane's window. Required for ImGui window positioning.
-        void InitializeTransparentImGuiOverlay(); // Full-screen transparent window for ImGui rendering.
+        void UpdateWindowGeometry();
+        void InitializeTransparentImGuiOverlay();
 
         // Event Handling
-        // Mouse Events
-        int HandleMouseClickEvent(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus isDown, void *inRefcon); // Handle mouse click events. This should be called from your mouse click callback.
-        int imgui_mouse_handler(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon);           // A dummy mouse handler function for events we don't want to process.
-
-        // Cursor Events
-        XPLMCursorStatus HandleCursorEvent(XPLMWindowID inWindowID, int x, int y, void *inRefcon); // Handle cursor events. This should be called from your cursor status callback.
-
-        // Wheel Events
-        int imgui_wheel_handler(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon); // A dummy wheel handler function for mouse wheel events we don't want to process.
-
-        // Key Events
-        void imgui_key_handler(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus); // A dummy key handler function for key events we don't want to process.
+        int HandleMouseClickEvent(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus isDown, void *inRefcon);
+        int HandleRightClickEvent(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon);
+        XPLMCursorStatus HandleCursorEvent(XPLMWindowID inWindowID, int x, int y, void *inRefcon);
+        int HandleMouseWheelEvent(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon);
+        void HandleKeyEvent(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus);
 
     } // namespace XP
 

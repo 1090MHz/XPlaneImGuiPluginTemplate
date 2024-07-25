@@ -8,7 +8,7 @@
 // X-Plane SDK headers
 #include <XPLMDisplay.h>
 #include <XPLMPlugin.h>
-#include <XPLMUtilities.h> // For XPLMDebugString
+#include <XPLMUtilities.h>
 
 // ImGui core library
 #include <imgui.h>
@@ -34,9 +34,6 @@ namespace ImGui
 
         // Global variable to store the ImGui context
         ImGuiContext *g_ImGuiContext;
-
-        // Typedef for ImGui render callback function pointers - defined in imgui_impl_xplane.h
-        // typedef std::function<void()> ImGuiRenderCallback;
 
         // Unique identifier for ImGuiRenderCallbackWrapper callbacks
         int ImGuiRenderCallbackWrapper::s_nextId = 0;
@@ -118,9 +115,9 @@ namespace ImGui
         }
 
         // Callbacks we will register when we create our window
-        static int imgui_mouse_handler(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon) { return 0; }
-        static int imgui_wheel_handler(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon) { return 0; }
-        static void imgui_key_handler(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus) {}
+        static int HandleRightClickEvent(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon) { return 0; }
+        static int HandleMouseWheelEvent(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon) { return 0; }
+        static void HandleKeyEvent(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus) {}
 
         static void InitializeTransparentImGuiOverlay()
         {
@@ -131,17 +128,18 @@ namespace ImGui
             // Note on "dummy" handlers:
             // Even if we don't want to handle these events, we have to register a "do-nothing" callback for them
             params.handleMouseClickFunc = HandleMouseClickEvent;
-            params.handleRightClickFunc = imgui_mouse_handler;
-            params.handleMouseWheelFunc = imgui_wheel_handler;
-            params.handleKeyFunc = imgui_key_handler;
+            params.handleRightClickFunc = HandleRightClickEvent;
+            params.handleMouseWheelFunc = HandleMouseWheelEvent;
+            params.handleKeyFunc = HandleKeyEvent;
             params.handleCursorFunc = HandleCursorEvent;
             // Set refcon to NULL or a pointer to your data structure if needed
             params.refcon = NULL;
             params.layer = xplm_WindowLayerFloatingWindows;
             params.decorateAsFloatingWindow = xplm_WindowDecorationNone; // No decoration for full transparency
-                                                                         // params.decorateAsFloatingWindow = xplm_WindowDecorationRoundRectangle; // Rounded rectangle window
-                                                                         // params.decorateAsFloatingWindow = xplm_WindowDecorationSelfDecorated; // Self-decorated window
-                                                                         // params.decorateAsFloatingWindow = xplm_WindowDecorationSelfDecoratedResizable; // Self-decorated resizable window
+
+            // params.decorateAsFloatingWindow = xplm_WindowDecorationRoundRectangle; // Rounded rectangle window
+            // params.decorateAsFloatingWindow = xplm_WindowDecorationSelfDecorated; // Self-decorated window
+            // params.decorateAsFloatingWindow = xplm_WindowDecorationSelfDecoratedResizable; // Self-decorated resizable window
 
             // Initialize the window boundaries.
             // Relying on the lower-left corner of the primary monitor being at (0, 0) is not advisable.
