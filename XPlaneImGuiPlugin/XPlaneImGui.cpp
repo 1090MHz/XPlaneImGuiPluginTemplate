@@ -141,6 +141,8 @@ PLUGIN_API int XPluginStart(char *out_name, char *out_signature, char *out_descr
     // Initialize the menu
     createMenu(); // Assuming create_menu() is the function you've defined to set up the menu
 
+    XPLMDebugString("XPlaneImGuiPluginTemplate: Plugin started\n");
+
     return 1;
 }
 
@@ -160,6 +162,8 @@ PLUGIN_API void XPluginDisable(void)
     ImGui::XP::UnregisterImGuiRenderCallback(RenderInputsCallback);
     ImGui::XP::UnregisterImGuiRenderCallback(RenderLayoutsCallback);
     ImGui::XP::UnregisterImGuiRenderCallback(RenderSimpleUICallback);
+
+    XPLMDebugString("XPlaneImGuiPluginTemplate: Callbacks unregistered\n");
 }
 
 PLUGIN_API int XPluginEnable(void)
@@ -173,6 +177,8 @@ PLUGIN_API int XPluginEnable(void)
     ImGui::XP::RegisterImGuiRenderCallback(RenderInputsCallback);
     ImGui::XP::RegisterImGuiRenderCallback(RenderLayoutsCallback);
     ImGui::XP::RegisterImGuiRenderCallback(RenderSimpleUICallback);
+
+    XPLMDebugString("XPlaneImGuiPluginTemplate: Callbacks registered\n");
 
     return 1;
 }
