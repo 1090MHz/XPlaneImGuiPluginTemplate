@@ -256,9 +256,11 @@ namespace ImGui
             // Debug: Print or log the iniPath to verify its correctness
             XPLMDebugString(("ImGui ini path: " + iniPath.string() + "\n").c_str());
 
+            static std::string iniPath_string = iniPath.string();
+
             // Set ImGui to save its configuration to the constructed path
             ImGuiIO &io = ImGui::GetIO();
-            io.IniFilename = iniPath.string().c_str();
+            io.IniFilename = iniPath_string.c_str();
         }
 
         static void EnsureImGuiDrawCallbackRegistered()
