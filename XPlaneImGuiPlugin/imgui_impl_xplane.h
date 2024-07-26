@@ -32,23 +32,23 @@ namespace ImGui
         class ImGuiRenderCallbackWrapper
         {
         public:
-            ImGuiRenderCallbackWrapper(std::function<void()> callback, bool *visibilityFlag = nullptr)
-                : m_callback(callback), m_visibilityFlag(visibilityFlag), m_id(s_nextId++) {}
+            ImGuiRenderCallbackWrapper(std::function<void()> callback, bool *callbackEnabledFlag = nullptr)
+                : m_callback(callback), m_callbackEnabledFlag(callbackEnabledFlag), m_id(s_nextId++) {}
 
             void operator()() const
             {
-                if (!m_visibilityFlag || *m_visibilityFlag)
+                if (!m_callbackEnabledFlag || *m_callbackEnabledFlag)
                     m_callback();
             }
             bool operator==(const ImGuiRenderCallbackWrapper &other) const { return m_id == other.m_id; }
 
             // Getter methods
-            bool getVisibilityFlag() const { return m_visibilityFlag ? *m_visibilityFlag : true; }
+            bool getVisibilityFlag() const { return m_callbackEnabledFlag ? *m_callbackEnabledFlag : true; }
             std::function<void()> getCallback() const { return m_callback; }
 
         private:
             std::function<void()> m_callback;
-            bool *m_visibilityFlag;
+            bool *m_callbackEnabledFlag;
             int m_id;
             static int s_nextId;
         };
