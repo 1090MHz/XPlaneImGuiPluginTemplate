@@ -4,3 +4,6 @@
 [submodule "imgui"]
 	path = imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "PPL"]
+	path = PPL
+	url = https://github.com/PhilippMuenzel/PPL.git
