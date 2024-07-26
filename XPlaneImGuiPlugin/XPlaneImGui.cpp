@@ -1,18 +1,23 @@
-#include "XPLMProcessing.h"
-#include "XPLMDisplay.h"
-#include "XPLMGraphics.h"
-#include "imgui_impl_xplane.h"
-#include <imgui.h>
-#include "ImGuiDemoRenderer.h"
+// Standard Library Headers
+#include <string.h>
 
+// Third-Party Library Headers
+#include <imgui.h>
+
+// Project-Specific Headers
+#include "imgui_impl_xplane.h"
+#include "ImGuiDemoRenderer.h"
 #include "ImGuiExamples\ImGuiCustomWidgets.h"
 #include "ImGuiExamples\ImGuiDrawing.h"
 #include "ImGuiExamples\ImGuiInputs.h"
 #include "ImGuiExamples\ImGuiLayouts.h"
 #include "ImGuiExamples\ImGuiSimpleUI.h"
 
+// X-Plane SDK Headers
+#include "XPLMDisplay.h"
+#include "XPLMGraphics.h"
 #include "XPLMMenus.h"
-#include <string.h>
+#include "XPLMProcessing.h"
 
 // Forward declarations
 PLUGIN_API int XPluginEnable(void);
