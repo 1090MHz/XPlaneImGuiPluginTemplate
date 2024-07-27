@@ -116,7 +116,16 @@ namespace ImGui
 
         // Callbacks we will register when we create our window
         static int HandleRightClickEvent(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon) { return 0; }
-        static int HandleMouseWheelEvent(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon) { return 0; }
+        static int HandleMouseWheelEvent(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon)
+        {
+            ImGuiIO &io = ImGui::GetIO();
+            if (io.WantCaptureMouse)
+            {
+                io.MouseWheel += static_cast<float>(clicks);
+                return 1; // Indicate that the event has been handled by ImGui
+            }
+            return 0; // Let the event pass through to the underlying application
+        }
         static void HandleKeyEvent(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus) {}
 
         static void InitializeTransparentImGuiOverlay()
