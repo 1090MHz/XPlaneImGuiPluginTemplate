@@ -181,11 +181,6 @@
     <ClCompile Include="..\imgui\imgui_draw.cpp" />
     <ClCompile Include="..\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="ImGuiExamples\ImGuiCustomWidgets.cpp" />
-    <ClCompile Include="ImGuiExamples\ImGuiDrawing.cpp" />
-    <ClCompile Include="ImGuiExamples\ImGuiInputs.cpp" />
-    <ClCompile Include="ImGuiExamples\ImGuiLayouts.cpp" />
-    <ClCompile Include="ImGuiExamples\ImGuiSimpleUI.cpp" />
     <ClCompile Include="imgui_impl_xplane.cpp" />
     <ClCompile Include="XPlaneImGui.cpp" />
   </ItemGroup>

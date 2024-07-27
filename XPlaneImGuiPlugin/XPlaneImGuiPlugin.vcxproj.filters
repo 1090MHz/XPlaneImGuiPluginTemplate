@@ -25,9 +25,6 @@
     <Filter Include="Header Files\imgui\backends">
       <UniqueIdentifier>{765baafc-ed34-4fc0-81d0-11c5dd7163a6}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\ImGuiExamples">
-      <UniqueIdentifier>{74958f58-734e-4970-90c9-f410e003d30a}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui_impl_xplane.cpp">
@@ -53,21 +50,6 @@
     </ClCompile>
     <ClCompile Include="..\imgui\backends\imgui_impl_opengl3.cpp">
       <Filter>Source Files\imgui\backends</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuiExamples\ImGuiCustomWidgets.cpp">
-      <Filter>Source Files\ImGuiExamples</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuiExamples\ImGuiDrawing.cpp">
-      <Filter>Source Files\ImGuiExamples</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuiExamples\ImGuiInputs.cpp">
-      <Filter>Source Files\ImGuiExamples</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuiExamples\ImGuiLayouts.cpp">
-      <Filter>Source Files\ImGuiExamples</Filter>
-    </ClCompile>
-    <ClCompile Include="ImGuiExamples\ImGuiSimpleUI.cpp">
-      <Filter>Source Files\ImGuiExamples</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
