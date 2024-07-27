@@ -181,7 +181,6 @@
     <ClCompile Include="..\imgui\imgui_draw.cpp" />
     <ClCompile Include="..\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="ImGuiDemoRenderer.cpp" />
     <ClCompile Include="ImGuiExamples\ImGuiCustomWidgets.cpp" />
     <ClCompile Include="ImGuiExamples\ImGuiDrawing.cpp" />
     <ClCompile Include="ImGuiExamples\ImGuiInputs.cpp" />
@@ -193,7 +192,6 @@
   <ItemGroup>
     <ClInclude Include="..\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="..\imgui\imgui.h" />
-    <ClInclude Include="ImGuiDemoRenderer.h" />
     <ClInclude Include="imgui_impl_xplane.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
