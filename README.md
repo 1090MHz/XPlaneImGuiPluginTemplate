@@ -16,7 +16,7 @@ To customize the `XPlaneImGui.cpp` file for your own use, follow these steps:
 
 ### Register and Unregister ImGui Draw Callbacks
 
-- **In `XPluginEnable`**: Register your own render callback function instead of `RenderDemoWindows`.
+- **In `XPluginEnable`**: Register your own render callback function instead of the examples.
 - **In `XPluginDisable`**: Unregister your render callback function.
 
 ### Implement Custom Render Function
