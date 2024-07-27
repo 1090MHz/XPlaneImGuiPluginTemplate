@@ -6,12 +6,6 @@
 
 // Project-Specific Headers
 #include "imgui_impl_xplane.h"
-#include "ImGuiDemoRenderer.h"
-#include "ImGuiExamples\ImGuiCustomWidgets.h"
-#include "ImGuiExamples\ImGuiDrawing.h"
-#include "ImGuiExamples\ImGuiInputs.h"
-#include "ImGuiExamples\ImGuiLayouts.h"
-#include "ImGuiExamples\ImGuiSimpleUI.h"
 
 // X-Plane SDK Headers
 #include "XPLMDisplay.h"
@@ -29,12 +23,6 @@ static XPLMMenuID g_menu_id = nullptr;
 struct MenuItems
 {
     int toggleImGuiIntro;
-    int toggleImGuiDrawing;
-    int toggleImGuiInputs;
-    int toggleImGuiLayouts;
-    int toggleImGuiSimpleUI;
-    int toggleImGuiCustomWidgets;
-    int reloadPlugin;
 };
 
 // Global instance of the structure for menu items
@@ -44,11 +32,6 @@ static MenuItems g_menuItems;
 struct WindowStates
 {
     bool showImGuiIntro = true;
-    bool showImGuiDrawing = false;
-    bool showImGuiInputs = false;
-    bool showImGuiLayouts = false;
-    bool showImGuiSimpleUI = false;
-    bool showImGuiCustomWidgets = false;
     // Add more window states as needed
 };
 
@@ -63,15 +46,6 @@ void menuHandler(void *inMenuRef, void *inItemRef)
     // clang-format off
     switch (itemRef) {
         case 1: g_windowStates.showImGuiIntro = !g_windowStates.showImGuiIntro; break;
-        case 2: g_windowStates.showImGuiDrawing = !g_windowStates.showImGuiDrawing; break;
-        case 3: g_windowStates.showImGuiInputs = !g_windowStates.showImGuiInputs; break;
-        case 4: g_windowStates.showImGuiLayouts = !g_windowStates.showImGuiLayouts; break;
-        case 5: g_windowStates.showImGuiSimpleUI = !g_windowStates.showImGuiSimpleUI; break;
-        case 6: g_windowStates.showImGuiCustomWidgets = !g_windowStates.showImGuiCustomWidgets; break;
-        case 7: // Reload plugin
-            XPluginDisable();
-            XPluginEnable();
-            break;
         default: break; // Handle other cases or do nothing
     }
     // clang-format on
@@ -85,12 +59,7 @@ void createMenu()
 
     // Append menu items for each window and store their indices
     g_menuItems.toggleImGuiIntro = XPLMAppendMenuItem(g_menu_id, "Toggle Plugin Intro", (void *)1, 1);
-    g_menuItems.toggleImGuiDrawing = XPLMAppendMenuItem(g_menu_id, "Toggle ImGui Drawing", (void *)2, 1);
-    g_menuItems.toggleImGuiInputs = XPLMAppendMenuItem(g_menu_id, "Toggle ImGui Inputs", (void *)3, 1);
-    g_menuItems.toggleImGuiLayouts = XPLMAppendMenuItem(g_menu_id, "Toggle ImGui Layouts", (void *)4, 1);
-    g_menuItems.toggleImGuiSimpleUI = XPLMAppendMenuItem(g_menu_id, "Toggle ImGui Simple UI", (void *)5, 1);
-    g_menuItems.toggleImGuiCustomWidgets = XPLMAppendMenuItem(g_menu_id, "Toggle ImGui Custom Widgets", (void *)6, 1);
-    g_menuItems.reloadPlugin = XPLMAppendMenuItem(g_menu_id, "Reload Plugin", (void *)7, 1);
+    // Add more menu items as needed
 }
 
 // XPlaneImGuiIntroRender to display a simple introduction window
@@ -113,8 +82,6 @@ void XPlaneImGuiIntroRender()
     ImGui::BulletText("Lightweight and efficient.");
 
     ImGui::End(); // End the window
-
-    // No need to manually check for g_show_imgui_window here, ImGui handles it through the Begin() function.
 }
 
 // ImGuiRenderCallbackWrapper to create a base ImGui window using a lambda function
@@ -126,14 +93,9 @@ auto RenderDemoLambda = ImGui::XP::ImGuiRenderCallbackWrapper([]()
     ImGui::End();
 });
 // clang-format on
+
 // Use ImGuiRenderCallbackWrapper to register render callbacks
 auto XPlaneImGuiIntroRenderCallback = ImGui::XP::ImGuiRenderCallbackWrapper(XPlaneImGuiIntroRender);
-auto RenderDemoWindowsCallback = ImGui::XP::ImGuiRenderCallbackWrapper(RenderDemoWindows);
-auto RenderCustomWidgetsCallback = ImGui::XP::ImGuiRenderCallbackWrapper(RenderCustomWidgets, &g_windowStates.showImGuiCustomWidgets);
-auto RenderDrawingCallback = ImGui::XP::ImGuiRenderCallbackWrapper(RenderDrawing, &g_windowStates.showImGuiDrawing);
-auto RenderInputsCallback = ImGui::XP::ImGuiRenderCallbackWrapper(RenderInputs, &g_windowStates.showImGuiInputs);
-auto RenderLayoutsCallback = ImGui::XP::ImGuiRenderCallbackWrapper(RenderLayouts, &g_windowStates.showImGuiLayouts);
-auto RenderSimpleUICallback = ImGui::XP::ImGuiRenderCallbackWrapper(RenderSimpleUI, &g_windowStates.showImGuiSimpleUI);
 
 PLUGIN_API int XPluginStart(char *out_name, char *out_signature, char *out_description)
 {
@@ -161,12 +123,6 @@ PLUGIN_API void XPluginDisable(void)
     // Unregister the ImGui draw callback(s)
     ImGui::XP::UnregisterImGuiRenderCallback(RenderDemoLambda);
     ImGui::XP::UnregisterImGuiRenderCallback(XPlaneImGuiIntroRenderCallback);
-    ImGui::XP::UnregisterImGuiRenderCallback(RenderDemoWindowsCallback);
-    ImGui::XP::UnregisterImGuiRenderCallback(RenderCustomWidgetsCallback);
-    ImGui::XP::UnregisterImGuiRenderCallback(RenderDrawingCallback);
-    ImGui::XP::UnregisterImGuiRenderCallback(RenderInputsCallback);
-    ImGui::XP::UnregisterImGuiRenderCallback(RenderLayoutsCallback);
-    ImGui::XP::UnregisterImGuiRenderCallback(RenderSimpleUICallback);
 
     XPLMDebugString("XPlaneImGuiPluginTemplate: Callbacks unregistered\n");
 }
@@ -176,12 +132,6 @@ PLUGIN_API int XPluginEnable(void)
     // Register the ImGui draw callback(s)
     ImGui::XP::RegisterImGuiRenderCallback(RenderDemoLambda);
     ImGui::XP::RegisterImGuiRenderCallback(XPlaneImGuiIntroRenderCallback);
-    ImGui::XP::RegisterImGuiRenderCallback(RenderDemoWindowsCallback);
-    ImGui::XP::RegisterImGuiRenderCallback(RenderCustomWidgetsCallback);
-    ImGui::XP::RegisterImGuiRenderCallback(RenderDrawingCallback);
-    ImGui::XP::RegisterImGuiRenderCallback(RenderInputsCallback);
-    ImGui::XP::RegisterImGuiRenderCallback(RenderLayoutsCallback);
-    ImGui::XP::RegisterImGuiRenderCallback(RenderSimpleUICallback);
 
     XPLMDebugString("XPlaneImGuiPluginTemplate: Callbacks registered\n");
 
