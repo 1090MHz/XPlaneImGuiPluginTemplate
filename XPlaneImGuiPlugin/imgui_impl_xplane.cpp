@@ -4,9 +4,9 @@
 #include <windows.h>
 
 // Standard library headers
-#include <vector>
-#include <string>
 #include <filesystem>
+#include <string>
+#include <vector>
 
 // X-Plane SDK headers
 #include <XPLMDisplay.h>
