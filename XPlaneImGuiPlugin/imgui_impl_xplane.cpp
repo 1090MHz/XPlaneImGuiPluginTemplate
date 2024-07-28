@@ -200,7 +200,67 @@ namespace ImGui
             }
             return 0; // Let the event pass through to the underlying application
         }
-        static void HandleKeyEvent(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus) {}
+
+        static void HandleKeyEvent(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus)
+        {
+            ImGuiIO &io = ImGui::GetIO();
+
+            if (io.WantCaptureKeyboard)
+            {
+                // Forward the key event to ImGui
+                io.KeysDown[static_cast<int>((unsigned char)virtual_key)] = (flags & xplm_UpFlag) == 0;
+                io.KeyCtrl = (flags & xplm_ControlFlag) != 0;
+                io.KeyShift = (flags & xplm_ShiftFlag) != 0;
+                io.KeyAlt = (flags & xplm_OptionAltFlag) != 0;
+
+                // Handle character input for text input fields
+                if ((flags & xplm_UpFlag) == 0) // Only forward key down events
+                {
+                    // Special handling for backspace key
+                    if (virtual_key == XPLM_VK_BACK)
+                    {
+                        io.KeysDown[ImGuiKey_Backspace] = true;
+                        // io.AddInputCharacter should not be used for backspace (non-printable character)
+                    }
+                    // Special handling for the return key
+                    // XPLM_VK_RETURN: Use this when you want to detect the Enter key on the main keyboard.
+                    else if (virtual_key == XPLM_VK_RETURN)
+                    {
+                        io.KeysDown[ImGuiKey_Enter] = true;
+                        // io.AddInputCharacter should not be used for return (non-printable character)
+                    }
+                    // Special handling for enter key
+                    // XPLM_VK_ENTER: Use this when you want to detect the Enter key on the numeric keypad.
+                    else if (virtual_key == XPLM_VK_ENTER)
+                    {
+                        io.KeysDown[ImGuiKey_KeypadEnter] = true;
+                        // io.AddInputCharacter should not be used for enter (non-printable character)
+                    }
+                    else
+                    {
+                        io.AddInputCharacter((unsigned short)key);
+                    }
+                }
+                else
+                {
+                    // Special handling for backspace key release
+                    if (virtual_key == XPLM_VK_BACK)
+                    {
+                        io.KeysDown[ImGuiKey_Backspace] = false;
+                    }
+                    // Special handling for return key release
+                    else if (virtual_key == XPLM_VK_RETURN)
+                    {
+                        io.KeysDown[ImGuiKey_Enter] = false;
+                    }
+                    // Special handling for enter key release
+                    else if (virtual_key == XPLM_VK_ENTER)
+                    {
+                        io.KeysDown[ImGuiKey_Enter] = false;
+                    }
+                }
+            }
+        }
 
         static void InitializeTransparentImGuiOverlay()
         {
