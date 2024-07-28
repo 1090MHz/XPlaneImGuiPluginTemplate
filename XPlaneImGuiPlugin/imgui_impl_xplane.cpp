@@ -156,8 +156,39 @@ namespace ImGui
             // Do not draw anything for transparency
         }
 
-        // Callbacks we will register when we create our window
-        static int HandleRightClickEvent(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon) { return 0; }
+        static int HandleRightClickEvent(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon)
+        {
+            // Update ImGui mouse position
+            ImGuiIO &io = ImGui::GetIO();
+            // Invert the Y-axis to match ImGui's coordinate system
+            io.MousePos = ImVec2(static_cast<float>(x), static_cast<float>(g_WindowGeometry.top - y));
+
+            // Determine if the mouse is over any ImGui content
+            if (io.WantCaptureMouse)
+            {
+                if (is_down == xplm_MouseDown)
+                {
+                    io.MouseDown[1] = true; // Right mouse button down
+                }
+                else if (is_down == xplm_MouseDrag)
+                {
+                    io.MouseDown[1] = true; // Right mouse button still down during drag
+                }
+                else if (is_down == xplm_MouseUp)
+                {
+                    io.MouseDown[1] = false; // Right mouse button up
+                }
+
+                return 1; // Consume the event
+            }
+            else
+            {
+                // Mouse is not over ImGui, pass the event to X-Plane
+                // Return 0 to let X-Plane handle the mouse click
+                return 0;
+            }
+        }
+
         static int HandleMouseWheelEvent(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon)
         {
             ImGuiIO &io = ImGui::GetIO();
