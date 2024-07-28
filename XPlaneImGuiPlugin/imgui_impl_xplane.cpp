@@ -357,6 +357,8 @@ namespace ImGui
             // ImGui::StyleColorsClassic();
             // ImGui::StyleColorsLight();
 
+            SetupKeyMap(); // Needed to map X-Plane key codes to ImGui key codes
+
             // Determine the plugin's directory
             char pluginPath[512];
             XPLMGetPluginInfo(XPLMGetMyID(), nullptr, pluginPath, nullptr, nullptr);
