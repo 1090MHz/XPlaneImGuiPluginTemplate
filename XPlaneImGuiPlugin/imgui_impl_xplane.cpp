@@ -1,5 +1,8 @@
 #include "imgui_impl_xplane.h"
 
+// Windows SDK headers
+#include <windows.h>
+
 // Standard library headers
 #include <vector>
 #include <string>
@@ -103,7 +106,46 @@ namespace ImGui
             if (io.WantCaptureMouse)
             {
                 // ImGui wants to capture the mouse, so don't pass the event to the underlying application
-                return xplm_CursorArrow; // Change the cursor to indicate ImGui interaction
+
+                // Get the current ImGui mouse cursor
+                ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
+
+                // Map ImGui cursor to system cursor
+                switch (imgui_cursor)
+                {
+                case ImGuiMouseCursor_Arrow:
+                    SetCursor(LoadCursor(NULL, IDC_ARROW));
+                    break;
+                case ImGuiMouseCursor_TextInput:
+                    SetCursor(LoadCursor(NULL, IDC_IBEAM));
+                    break;
+                case ImGuiMouseCursor_ResizeAll:
+                    SetCursor(LoadCursor(NULL, IDC_SIZEALL));
+                    break;
+                case ImGuiMouseCursor_ResizeNS:
+                    SetCursor(LoadCursor(NULL, IDC_SIZENS));
+                    break;
+                case ImGuiMouseCursor_ResizeEW:
+                    SetCursor(LoadCursor(NULL, IDC_SIZEWE));
+                    break;
+                case ImGuiMouseCursor_ResizeNESW:
+                    SetCursor(LoadCursor(NULL, IDC_SIZENESW));
+                    break;
+                case ImGuiMouseCursor_ResizeNWSE:
+                    SetCursor(LoadCursor(NULL, IDC_SIZENWSE));
+                    break;
+                case ImGuiMouseCursor_Hand:
+                    SetCursor(LoadCursor(NULL, IDC_HAND));
+                    break;
+                case ImGuiMouseCursor_NotAllowed:
+                    SetCursor(LoadCursor(NULL, IDC_NO));
+                    break;
+                default:
+                    SetCursor(LoadCursor(NULL, IDC_ARROW));
+                    break;
+                }
+
+                return xplm_CursorCustom;
             }
 
             return xplm_CursorDefault; // Return the default cursor for other cases
