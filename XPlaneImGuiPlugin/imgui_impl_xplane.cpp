@@ -310,6 +310,36 @@ namespace ImGui
             return 1;
         }
 
+        // Function to set up the keymap
+        static void SetupKeyMap()
+        {
+            ImGuiIO &io = ImGui::GetIO(); // Get a reference to the ImGui I/O structure
+
+            // Map ImGui keys to X-Plane virtual key codes
+            io.KeyMap[ImGuiKey_Tab] = XPLM_VK_TAB;           // Tab key
+            io.KeyMap[ImGuiKey_LeftArrow] = XPLM_VK_LEFT;    // Left arrow key
+            io.KeyMap[ImGuiKey_RightArrow] = XPLM_VK_RIGHT;  // Right arrow key
+            io.KeyMap[ImGuiKey_UpArrow] = XPLM_VK_UP;        // Up arrow key
+            io.KeyMap[ImGuiKey_DownArrow] = XPLM_VK_DOWN;    // Down arrow key
+            io.KeyMap[ImGuiKey_PageUp] = XPLM_VK_PRIOR;      // Page Up key
+            io.KeyMap[ImGuiKey_PageDown] = XPLM_VK_NEXT;     // Page Down key
+            io.KeyMap[ImGuiKey_Home] = XPLM_VK_HOME;         // Home key
+            io.KeyMap[ImGuiKey_End] = XPLM_VK_END;           // End key
+            io.KeyMap[ImGuiKey_Insert] = XPLM_VK_INSERT;     // Insert key
+            io.KeyMap[ImGuiKey_Delete] = XPLM_VK_DELETE;     // Delete key
+            io.KeyMap[ImGuiKey_Backspace] = XPLM_VK_BACK;    // Backspace key
+            io.KeyMap[ImGuiKey_Space] = XPLM_VK_SPACE;       // Space key
+            io.KeyMap[ImGuiKey_Enter] = XPLM_VK_RETURN;      // Enter key
+            io.KeyMap[ImGuiKey_Escape] = XPLM_VK_ESCAPE;     // Escape key
+            io.KeyMap[ImGuiKey_KeypadEnter] = XPLM_VK_ENTER; // Keypad Enter key
+            io.KeyMap[ImGuiKey_A] = XPLM_VK_A;               // 'A' key, needed for "Select All" (Ctrl+A)
+            io.KeyMap[ImGuiKey_C] = XPLM_VK_C;               // 'C' key, needed for "Copy" (Ctrl+C)
+            io.KeyMap[ImGuiKey_V] = XPLM_VK_V;               // 'V' key, needed for "Paste" (Ctrl+V)
+            io.KeyMap[ImGuiKey_X] = XPLM_VK_X;               // 'X' key, needed for "Cut" (Ctrl+X)
+            io.KeyMap[ImGuiKey_Y] = XPLM_VK_Y;               // 'Y' key, needed for "Redo" (Ctrl+Y)
+            io.KeyMap[ImGuiKey_Z] = XPLM_VK_Z;               // 'Z' key, needed for "Undo" (Ctrl+Z)
+        }
+
         // ImGui X-Plane integration initialization
         void Init()
         {
