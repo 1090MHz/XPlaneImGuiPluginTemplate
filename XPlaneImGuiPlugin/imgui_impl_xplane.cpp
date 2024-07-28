@@ -100,6 +100,7 @@ namespace ImGui
         {
             // Update ImGui mouse position
             ImGuiIO &io = ImGui::GetIO();
+            // Invert the Y-axis to match ImGui's coordinate system
             io.MousePos = ImVec2(static_cast<float>(x), static_cast<float>(g_WindowGeometry.top - y));
 
             // Determine if the mouse is over any ImGui content
