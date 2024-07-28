@@ -33,9 +33,9 @@ static MenuItems g_menuItems;
 // Define a structure to hold window visibility states
 struct WindowStates
 {
-    bool showImGuiIntro = true;
-    bool show_demo_lambda = true;
-    bool showImGuiStandaloneExample = true;
+    bool showImGuiIntro = false;
+    bool show_demo_lambda = false;
+    bool showImGuiStandaloneExample = false;
     // Add more window states as needed
 };
 
