@@ -58,8 +58,9 @@ namespace ImGui
         extern std::vector<ImGuiRenderCallbackWrapper> g_ImGuiRenderCallbacks;
 
         // Initialization and Shutdown
-        void Init();     // Initialize ImGui for X-Plane. Add to XPluginStart.
-        void Shutdown(); // Shutdown ImGui for X-Plane. Add to XPluginStop.
+        void Init();        // Initialize ImGui for X-Plane. Add to XPluginStart.
+        void SetupKeyMap(); // Setup key map for ImGui. Used in Init.
+        void Shutdown();    // Shutdown ImGui for X-Plane. Add to XPluginStop.
 
         // Frame Handling
         void BeginFrame(); // Begins a new ImGui frame. Used at the beginning of drawing callback.
