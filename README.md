@@ -21,7 +21,7 @@ To customize the `XPlaneImGui.cpp` file for your own use, follow these steps:
 
 ### Implement Custom Render Function
 
-- **Replace `XPlaneImGuiIntroRender`** with your custom function. This function should contain ImGui calls to create your plugin's UI.
+- **Replace `XPlanePluginIntroRender`** with your custom function. This function should contain ImGui calls to create your plugin's UI.
 
 ### Handle Plugin Messages
 
