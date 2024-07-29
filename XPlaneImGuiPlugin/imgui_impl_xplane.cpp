@@ -75,6 +75,9 @@ namespace ImGui
                 if (isDown == xplm_MouseDown)
                 {
                     io.MouseDown[0] = true; // Left mouse button down
+                    // Take keyboard focus when the mouse is clicked in an ImGui window
+                    if (!XPLMHasKeyboardFocus(inWindowID))
+                        XPLMTakeKeyboardFocus(inWindowID);
                 }
                 else if (isDown == xplm_MouseDrag)
                 {
@@ -90,7 +93,23 @@ namespace ImGui
             }
             else
             {
-                // Mouse is not over ImGui, pass the event to X-Plane
+                // Mouse click is outside ImGui, disengage and pass the event to X-Plane
+                // Ensure that the keyboard focus is removed from the XPLM window if it has it
+                if (XPLMHasKeyboardFocus(inWindowID))
+                {
+                    XPLMTakeKeyboardFocus(nullptr);
+                    // Iterate over 'KeysDown' array and set all keys to 'false'
+                    // This ensures no keys are mistakenly considered pressed when the window loses focus
+                    for (auto &key : io.KeysDown)
+                    {
+                        key = false;
+                    }
+                }
+
+                // Remove focus from the current ImGui window
+                // This will provide a visual cue to the user that the window is not active
+                ImGui::SetWindowFocus(nullptr);
+
                 // Return 0 to let X-Plane handle the mouse click
                 return 0;
             }
