@@ -22,8 +22,8 @@ static XPLMMenuID g_menu_id = nullptr;
 // Define a structure to hold menu item indices
 struct MenuItems
 {
-    int toggleImGuiIntro;
-    int toggleImGuiDemoLambda;
+    int togglePluginIntro;
+    int togglePluginFeatures;
     int toggleImGuiStandaloneExample;
 };
 
@@ -33,8 +33,8 @@ static MenuItems g_menuItems;
 // Define a structure to hold window visibility states
 struct WindowStates
 {
-    bool showImGuiIntro = false;
-    bool show_demo_lambda = false;
+    bool showPluginIntro = false;
+    bool showPluginFeatures = false;
     bool showImGuiStandaloneExample = false;
     // Add more window states as needed
 };
@@ -54,8 +54,8 @@ void menuHandler(void *inMenuRef, void *inItemRef)
     intptr_t itemRef = reinterpret_cast<intptr_t>(inItemRef);
     // clang-format off
     switch (itemRef) {
-        case 1: g_windowStates.showImGuiIntro = !g_windowStates.showImGuiIntro; break;
-        case 2: g_windowStates.show_demo_lambda = !g_windowStates.show_demo_lambda; break;
+        case 1: g_windowStates.showPluginIntro = !g_windowStates.showPluginIntro; break;
+        case 2: g_windowStates.showPluginFeatures = !g_windowStates.showPluginFeatures; break;
         case 3: g_windowStates.showImGuiStandaloneExample = !g_windowStates.showImGuiStandaloneExample; break;
         default: break; // Handle other cases or do nothing
     }
@@ -72,19 +72,19 @@ void createMenu()
     int menuItemCounter = 1;
 
     // Append menu items for each window and store their indices
-    g_menuItems.toggleImGuiIntro = XPLMAppendMenuItem(g_menu_id, "Toggle Plugin Intro", (void *)(intptr_t)menuItemCounter++, 1);
-    g_menuItems.toggleImGuiDemoLambda = XPLMAppendMenuItem(g_menu_id, "Toggle ImGui Demo", (void *)(intptr_t)menuItemCounter++, 1);
+    g_menuItems.togglePluginIntro = XPLMAppendMenuItem(g_menu_id, "Toggle Plugin Intro", (void *)(intptr_t)menuItemCounter++, 1);
+    g_menuItems.togglePluginFeatures = XPLMAppendMenuItem(g_menu_id, "Toggle Plugin Features Info", (void *)(intptr_t)menuItemCounter++, 1);
     g_menuItems.toggleImGuiStandaloneExample = XPLMAppendMenuItem(g_menu_id, "Toggle ImGui Standalone Example", (void *)(intptr_t)menuItemCounter++, 1);
     // Add more menu items as needed
 }
 
-// XPlaneImGuiIntroRender to display a simple introduction window
-void XPlaneImGuiIntroRender()
+// XPlanePluginIntroRender to display a simple introduction window
+void XPlanePluginIntroRender()
 {
-    if (!g_windowStates.showImGuiIntro)
+    if (!g_windowStates.showPluginIntro)
         return;
 
-    ImGui::Begin("XPlaneImGuiPluginTemplate", &g_windowStates.showImGuiIntro);
+    ImGui::Begin("XPlaneImGuiPluginTemplate", &g_windowStates.showPluginIntro);
 
     // Display text in the window
     ImGui::Text("Welcome to the X-Plane ImGui Plugin!");
@@ -164,18 +164,85 @@ auto ImGuiStandaloneExample = [&]()
 
 // Illustrative lambda function to render a simple ImGui demo window
 // clang-format off
-auto RenderDemoLambda = []()
+auto RenderPluginFeatures = []()
 {
-    ImGui::Begin("Demo Window"); // Add a title for the window
-    ImGui::Text("Lambda Function Support!"); // Display text in the window
+    static bool transparent = false;
+    static float alpha = 1.0f;
+
+    // Create a window with the specified flags and transparency
+    ImGui::SetNextWindowBgAlpha(alpha);
+    ImGui::Begin("Implemented Features");
+
+    // Checkbox to toggle transparency
+    ImGui::Checkbox("Transparent", &transparent);
+
+    // Set window transparency
+    if (transparent)
+    {
+        alpha = 0.5f;
+    }
+    else
+    {
+        alpha = 1.0f;
+    }
+
+    // Left-click to focus ImGui content
+    ImGui::Text("1. Left-click handling: Use to focus ImGui content.");
+
+    // Right-click context menu hint
+    ImGui::Text("2. Right-click handling: Use to open context menus.");
+
+    // Right-click context menu
+    if (ImGui::BeginPopupContextWindow())
+    {
+        if (ImGui::MenuItem("Option 1"))
+        {
+            // Handle Option 1
+        }
+        if (ImGui::MenuItem("Option 2"))
+        {
+            // Handle Option 2
+        }
+        ImGui::EndPopup();
+    }
+
+    // Draggable and resizable window
+    ImGui::Text("3. Drag and resize handling: Use to move and resize ImGui windows.");
+
+    // Handle mouse wheel
+    ImGui::Text("4. Mouse wheel handling: Use to scroll through content.");
+
+    // Help marker
+    ImGui::Text("5. Hover event handling: Use to create tooltips and help info: ");
+    ImGui::SameLine();
+    if (ImGui::Button("?"))
+    {
+    }
+
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::BeginTooltip();
+        ImGui::Text("This is a demo window for ImGui.\nYou can interact with it by left-clicking,\nright-clicking, dragging, resizing, and scrolling with the mouse wheel.");
+        ImGui::EndTooltip();
+    }
+
+
+    ImGui::Text("6. Keyboard caputure: Use to type text.");
+
+    // Multiline text edit for keyboard capture
+    static char text[1024 * 16] = "Type here...";
+    ImGui::InputTextMultiline("##source", text, IM_ARRAYSIZE(text), ImVec2(-FLT_MIN, ImGui::GetTextLineHeight() * 16), ImGuiInputTextFlags_AllowTabInput);
+
+    ImGui::Text("7. Use lambda functions: Useful for capturing variables.");
+
     ImGui::End();
 };
 // clang-format on
 
 // Use ImGuiRenderCallbackWrapper to wrap render callbacks, optionally passing a flag to enable/disable the callback
-auto XPlaneImGuiIntroRenderCallback = ImGui::XP::ImGuiRenderCallbackWrapper(XPlaneImGuiIntroRender);
+auto XPlanePluginIntroRenderCallback = ImGui::XP::ImGuiRenderCallbackWrapper(XPlanePluginIntroRender);
+auto RenderPluginFeaturesCallback = ImGui::XP::ImGuiRenderCallbackWrapper(RenderPluginFeatures, &g_windowStates.showPluginFeatures);
 auto ImGuiStandaloneExampleCallback = ImGui::XP::ImGuiRenderCallbackWrapper(ImGuiStandaloneExample, &g_windowStates.showImGuiStandaloneExample);
-auto RenderDemoLambdaCallback = ImGui::XP::ImGuiRenderCallbackWrapper(RenderDemoLambda, &g_windowStates.show_demo_lambda);
 
 PLUGIN_API int XPluginStart(char *out_name, char *out_signature, char *out_description)
 {
@@ -201,8 +268,8 @@ PLUGIN_API void XPluginStop(void)
 PLUGIN_API void XPluginDisable(void)
 {
     // Unregister the ImGui draw callback(s)
-    ImGui::XP::UnregisterImGuiRenderCallback(RenderDemoLambdaCallback);
-    ImGui::XP::UnregisterImGuiRenderCallback(XPlaneImGuiIntroRenderCallback);
+    ImGui::XP::UnregisterImGuiRenderCallback(XPlanePluginIntroRenderCallback);
+    ImGui::XP::UnregisterImGuiRenderCallback(RenderPluginFeaturesCallback);
     ImGui::XP::UnregisterImGuiRenderCallback(ImGuiStandaloneExampleCallback);
 
     XPLMDebugString("XPlaneImGuiPluginTemplate: Callbacks unregistered\n");
@@ -211,8 +278,8 @@ PLUGIN_API void XPluginDisable(void)
 PLUGIN_API int XPluginEnable(void)
 {
     // Register the ImGui draw callback(s)
-    ImGui::XP::RegisterImGuiRenderCallback(RenderDemoLambdaCallback);
-    ImGui::XP::RegisterImGuiRenderCallback(XPlaneImGuiIntroRenderCallback);
+    ImGui::XP::RegisterImGuiRenderCallback(XPlanePluginIntroRenderCallback);
+    ImGui::XP::RegisterImGuiRenderCallback(RenderPluginFeaturesCallback);
     ImGui::XP::RegisterImGuiRenderCallback(ImGuiStandaloneExampleCallback);
 
     XPLMDebugString("XPlaneImGuiPluginTemplate: Callbacks registered\n");
