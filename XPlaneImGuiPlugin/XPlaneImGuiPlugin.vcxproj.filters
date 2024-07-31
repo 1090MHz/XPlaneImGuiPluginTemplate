@@ -51,6 +51,9 @@
     <ClCompile Include="..\imgui\backends\imgui_impl_opengl3.cpp">
       <Filter>Source Files\imgui\backends</Filter>
     </ClCompile>
+    <ClCompile Include="XPlaneLog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui_impl_xplane.h">
@@ -61,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="..\imgui\backends\imgui_impl_opengl3.h">
       <Filter>Header Files\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="XPlaneLog.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

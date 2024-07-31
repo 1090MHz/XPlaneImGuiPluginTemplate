@@ -88,8 +88,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>IBM;XPLM400;XPLM302;XPLM301;XPLM300;XPLM210;XPLM200</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\imgui;..\SDK\CHeaders\XPLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\SDK\CHeaders\XPLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4996;6285;26498;26800</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -111,8 +111,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>IBM;XPLM400;XPLM302;XPLM301;XPLM300;XPLM210;XPLM200</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\imgui;..\SDK\CHeaders\XPLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\SDK\CHeaders\XPLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4996;6285;26498;26800</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -134,8 +134,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>IBM;XPLM400;XPLM302;XPLM301;XPLM300;XPLM210;XPLM200</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\imgui;..\SDK\CHeaders\XPLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\SDK\CHeaders\XPLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4996;6285;26498;26800</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -157,8 +157,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>IBM;XPLM400;XPLM302;XPLM301;XPLM300;XPLM210;XPLM200</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\imgui;..\SDK\CHeaders\XPLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\SDK\CHeaders\XPLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4996;6285;26498;26800</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -183,11 +183,13 @@
     <ClCompile Include="..\imgui\imgui_widgets.cpp" />
     <ClCompile Include="imgui_impl_xplane.cpp" />
     <ClCompile Include="XPlaneImGui.cpp" />
+    <ClCompile Include="XPlaneLog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="..\imgui\imgui.h" />
     <ClInclude Include="imgui_impl_xplane.h" />
+    <ClInclude Include="XPlaneLog.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

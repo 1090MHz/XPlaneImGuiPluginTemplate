@@ -6,6 +6,7 @@
 
 // Project-Specific Headers
 #include "imgui_impl_xplane.h"
+#include "XPlaneLog.h"
 
 // X-Plane SDK Headers
 #include "XPLMDisplay.h"
@@ -246,16 +247,19 @@ auto ImGuiStandaloneExampleCallback = ImGui::XP::ImGuiRenderCallbackWrapper(ImGu
 
 PLUGIN_API int XPluginStart(char *out_name, char *out_signature, char *out_description)
 {
-    strcpy(out_name, "X-Plane ImGui Plugin");
+    strcpy(out_name, "XPlaneImGuiPlugin");
     strcpy(out_signature, "GitHub.1090MHz.XPlaneImGui");
-    strcpy(out_description, "A plugin that uses ImGui");
+    strcpy(out_description, "XPlane ImGui Plugin");
+
+    // Initialize the logger
+    XPlaneLog::init(out_name);
 
     ImGui::XP::Init();
 
     // Initialize the menu
     createMenu(); // Assuming create_menu() is the function you've defined to set up the menu
 
-    XPLMDebugString("XPlaneImGuiPluginTemplate: Plugin started\n");
+    XPlaneLog::info("Plugin started");
 
     return 1;
 }
@@ -263,6 +267,7 @@ PLUGIN_API int XPluginStart(char *out_name, char *out_signature, char *out_descr
 PLUGIN_API void XPluginStop(void)
 {
     ImGui::XP::Shutdown();
+    XPlaneLog::info("Plugin stopped");
 }
 
 PLUGIN_API void XPluginDisable(void)
@@ -272,7 +277,7 @@ PLUGIN_API void XPluginDisable(void)
     ImGui::XP::UnregisterImGuiRenderCallback(RenderPluginFeaturesCallback);
     ImGui::XP::UnregisterImGuiRenderCallback(ImGuiStandaloneExampleCallback);
 
-    XPLMDebugString("XPlaneImGuiPluginTemplate: Callbacks unregistered\n");
+    XPlaneLog::info("Plugin disabled");
 }
 
 PLUGIN_API int XPluginEnable(void)
@@ -282,7 +287,7 @@ PLUGIN_API int XPluginEnable(void)
     ImGui::XP::RegisterImGuiRenderCallback(RenderPluginFeaturesCallback);
     ImGui::XP::RegisterImGuiRenderCallback(ImGuiStandaloneExampleCallback);
 
-    XPLMDebugString("XPlaneImGuiPluginTemplate: Callbacks registered\n");
+    XPlaneLog::info("Plugin enabled");
 
     return 1;
 }
