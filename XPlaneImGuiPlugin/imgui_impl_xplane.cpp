@@ -18,6 +18,7 @@
 
 // OpenGL3 backend for ImGui
 #include <backends/imgui_impl_opengl3.h>
+#include "XPlaneLog.h"
 
 // Logging macro for function calls with plugin name
 #define LOG_CALL(func, ...)                                            \
@@ -419,9 +420,17 @@ namespace ImGui
             io.KeyMap[ImGuiKey_Z] = XPLM_VK_Z;               // 'Z' key, needed for "Undo" (Ctrl+Z)
         }
 
+        void InitLogger()
+        {
+            // Initialize the logger with a specific name
+            XPlaneLog::init("ImGui::XP");
+        }
+
         // ImGui X-Plane integration initialization
         void Init()
         {
+            InitLogger();
+
             InitializeTransparentImGuiOverlay();
 
             // Initialize ImGui for X-Plane OpenGL rendering
@@ -448,13 +457,15 @@ namespace ImGui
             std::filesystem::path iniPath = path.parent_path() / iniFileName;
 
             // Debug: Print or log the iniPath to verify its correctness
-            XPLMDebugString(("ImGui ini path: " + iniPath.string() + "\n").c_str());
+            XPlaneLog::info(("ImGui ini path: " + iniPath.string() + "\n").c_str());
 
             static std::string iniPath_string = iniPath.string();
 
             // Set ImGui to save its configuration to the constructed path
             ImGuiIO &io = ImGui::GetIO();
             io.IniFilename = iniPath_string.c_str();
+
+            XPlaneLog::info("ImGui initialized for X-Plane.");
         }
 
         static void EnsureImGuiDrawCallbackRegistered()
@@ -503,6 +514,9 @@ namespace ImGui
         {
             // Shutdown the ImGui OpenGL3 backend
             ImGui_ImplOpenGL3_Shutdown();
+
+            XPlaneLog::info("ImGui shutdown for X-Plane.");
+
             // Destroy the ImGui context
             ImGui::DestroyContext();
         }
