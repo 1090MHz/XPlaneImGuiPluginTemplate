@@ -52,7 +52,7 @@ void XPlaneLog::init(const std::string &plugin_name)
     auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(logFilePath.string(), true);
 
     spdlog::sinks_init_list sink_list = {console_sink, file_sink, xplane_sink};
-    auto logger = std::make_shared<spdlog::logger>("XPlaneLogger", sink_list.begin(), sink_list.end());
+    logger = std::make_shared<spdlog::logger>(plugin_name, sink_list.begin(), sink_list.end());
 
     // Provide a custom format for the logger
 
