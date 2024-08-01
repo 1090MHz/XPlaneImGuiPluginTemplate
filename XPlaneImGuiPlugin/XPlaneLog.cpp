@@ -117,7 +117,7 @@ void XPlaneLog::Formatter::format(const spdlog::details::log_msg &msg, spdlog::m
     std::transform(log_level.begin(), log_level.end(), log_level.begin(), ::toupper);
 
     // Create a custom pattern that includes the uppercase log level
-    std::string pattern = "[%Y-%m-%d %H:%M:%S.%e] [" + log_level + "] %v";
+    std::string pattern = "[%Y-%m-%d %H:%M:%S.%e] [%n] [" + log_level + "] %v";
 
     // Use the pattern formatter with the custom pattern to format the message
     spdlog::pattern_formatter formatter(pattern);
