@@ -457,7 +457,7 @@ namespace ImGui
             std::filesystem::path iniPath = path.parent_path() / iniFileName;
 
             // Debug: Print or log the iniPath to verify its correctness
-            XPlaneLog::info(("ImGui ini path: " + iniPath.string() + "\n").c_str());
+            XPlaneLog::info(("ImGui ini path: " + iniPath.string()).c_str());
 
             static std::string iniPath_string = iniPath.string();
 
