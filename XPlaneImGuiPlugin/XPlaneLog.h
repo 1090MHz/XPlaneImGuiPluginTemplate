@@ -41,6 +41,19 @@ private:
         void flush_() override;
     };
 
+    // Custom formatter for X-Plane
+    class Formatter : public spdlog::formatter
+    {
+    public:
+        void format(const spdlog::details::log_msg &msg, spdlog::memory_buf_t &dest) override;
+        std::unique_ptr<spdlog::formatter> clone() const override
+        {
+            return std::make_unique<Formatter>(*this);
+        }
+
+        virtual ~Formatter() {} // Required for abstract class
+    };
+
     static std::shared_ptr<spdlog::logger> logger;
 };
 

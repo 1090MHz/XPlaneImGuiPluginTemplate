@@ -55,7 +55,9 @@ void XPlaneLog::init(const std::string &plugin_name)
     auto logger = std::make_shared<spdlog::logger>("XPlaneLogger", sink_list.begin(), sink_list.end());
 
     // Provide a custom format for the logger
-    logger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [" + plugin_name + "] [%^%l%$] %v");
+
+    // Set a custom formatter for the logger
+    logger->set_formatter(std::make_unique<XPlaneLog::Formatter>());
 
     spdlog::set_default_logger(logger);
     spdlog::set_level(spdlog::level::debug); // Set global log level to debug
@@ -106,4 +108,39 @@ void XPlaneLog::Sink::sink_it_(const spdlog::details::log_msg &msg)
 void XPlaneLog::Sink::flush_()
 {
     // Flush function can be empty as XPLMDebugString doesn't have a corresponding flush function
+}
+
+void XPlaneLog::Formatter::format(const spdlog::details::log_msg &msg, spdlog::memory_buf_t &dest)
+{
+    // Use the default pattern formatter to format the message
+    spdlog::pattern_formatter default_formatter;
+    default_formatter.format(msg, dest);
+
+    // Convert to string
+    std::string formatted_str = fmt::to_string(dest);
+
+    // Extract and convert log level to uppercase
+    std::string log_level = spdlog::level::to_string_view(msg.level).data();
+    std::transform(log_level.begin(), log_level.end(), log_level.begin(), ::toupper);
+
+    // Replace the original log level in the formatted string with the uppercase version
+    size_t log_level_pos = formatted_str.find(log_level);
+    if (log_level_pos != std::string::npos)
+    {
+        formatted_str.replace(log_level_pos, log_level.length(), log_level);
+    }
+
+    // Ensure it ends with a single newline
+    if (!formatted_str.empty())
+    {
+        // Remove any existing CR or LF characters
+        formatted_str.erase(std::remove(formatted_str.begin(), formatted_str.end(), '\r'), formatted_str.end());
+        formatted_str.erase(std::remove(formatted_str.begin(), formatted_str.end(), '\n'), formatted_str.end());
+        // Add a single newline character
+        formatted_str += '\n';
+    }
+
+    // Clear the destination buffer and append the formatted string
+    dest.clear();
+    fmt::format_to(std::back_inserter(dest), "{}", formatted_str);
 }
