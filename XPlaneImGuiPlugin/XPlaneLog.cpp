@@ -16,8 +16,17 @@
 #include "XPLMUtilities.h" // For XPLMDebugString and XPLMGetPluginInfo
 #include "XPLMPlugin.h"    // For XPLMGetMyID
 
+std::shared_ptr<spdlog::logger> XPlaneLog::logger = nullptr;
+
 void XPlaneLog::init(const std::string &plugin_name)
 {
+
+    // Ensure the logger is not already initialized
+    if (logger)
+    {
+        return;
+    }
+
     // Create an XPlaneLog::Sink instance
     auto xplane_sink = std::make_shared<Sink>();
 

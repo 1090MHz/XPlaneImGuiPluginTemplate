@@ -40,6 +40,8 @@ private:
         void sink_it_(const spdlog::details::log_msg &msg) override;
         void flush_() override;
     };
+
+    static std::shared_ptr<spdlog::logger> logger;
 };
 
 #endif // XPLANELOG_H
