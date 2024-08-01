@@ -112,23 +112,19 @@ void XPlaneLog::Sink::flush_()
 
 void XPlaneLog::Formatter::format(const spdlog::details::log_msg &msg, spdlog::memory_buf_t &dest)
 {
-    // Use the default pattern formatter to format the message
-    spdlog::pattern_formatter default_formatter;
-    default_formatter.format(msg, dest);
-
-    // Convert to string
-    std::string formatted_str = fmt::to_string(dest);
-
     // Extract and convert log level to uppercase
     std::string log_level = spdlog::level::to_string_view(msg.level).data();
     std::transform(log_level.begin(), log_level.end(), log_level.begin(), ::toupper);
 
-    // Replace the original log level in the formatted string with the uppercase version
-    size_t log_level_pos = formatted_str.find(log_level);
-    if (log_level_pos != std::string::npos)
-    {
-        formatted_str.replace(log_level_pos, log_level.length(), log_level);
-    }
+    // Create a custom pattern that includes the uppercase log level
+    std::string pattern = "[%Y-%m-%d %H:%M:%S.%e] [" + log_level + "] %v";
+
+    // Use the pattern formatter with the custom pattern to format the message
+    spdlog::pattern_formatter formatter(pattern);
+    formatter.format(msg, dest);
+
+    // Convert to string
+    std::string formatted_str = fmt::to_string(dest);
 
     // Ensure it ends with a single newline
     if (!formatted_str.empty())
