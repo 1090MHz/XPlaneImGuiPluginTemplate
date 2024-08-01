@@ -66,32 +66,32 @@ void XPlaneLog::init(const std::string &plugin_name)
 
 void XPlaneLog::trace(const std::string &message)
 {
-    spdlog::trace(message);
+    logger->trace(message);
 }
 
 void XPlaneLog::debug(const std::string &message)
 {
-    spdlog::debug(message);
+    logger->debug(message);
 }
 
 void XPlaneLog::info(const std::string &message)
 {
-    spdlog::info(message);
+    logger->info(message);
 }
 
 void XPlaneLog::warn(const std::string &message)
 {
-    spdlog::warn(message);
+    logger->warn(message);
 }
 
 void XPlaneLog::error(const std::string &message)
 {
-    spdlog::error(message);
+    logger->error(message);
 }
 
 void XPlaneLog::critical(const std::string &message)
 {
-    spdlog::critical(message);
+    logger->critical(message);
 }
 
 // Implementation of the custom sink for X-Plane
