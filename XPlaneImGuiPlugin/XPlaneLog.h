@@ -1,12 +1,15 @@
 #ifndef XPLANELOG_H
 #define XPLANELOG_H
 
-#include <string>
-#include <memory>
-#include <mutex>
+// Standard Library Headers
+#include <string> // For std::string
+#include <memory> // For std::shared_ptr
+#include <mutex>  // For std::mutex
 
-#include <spdlog/sinks/base_sink.h>
-#include <spdlog/details/log_msg.h>
+// Third-Party Library Headers
+#include <spdlog/spdlog.h>          // For spdlog logging functions
+#include <spdlog/sinks/base_sink.h> // For spdlog::sinks::base_sink
+#include <spdlog/details/log_msg.h> // For spdlog::details::log_msg
 
 class XPlaneLog
 {
