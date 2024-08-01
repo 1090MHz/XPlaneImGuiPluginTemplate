@@ -18,8 +18,8 @@
 
 void XPlaneLog::init(const std::string &plugin_name)
 {
-    // Create an XPlaneSink instance
-    auto xplane_sink = std::make_shared<XPlaneSink>();
+    // Create an XPlaneLog::Sink instance
+    auto xplane_sink = std::make_shared<Sink>();
 
     // Optionally, create other sinks (e.g., console and file sinks)
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
@@ -84,7 +84,7 @@ void XPlaneLog::critical(const std::string &message)
 }
 
 // Implementation of the custom sink for X-Plane
-void XPlaneLog::XPlaneSink::sink_it_(const spdlog::details::log_msg &msg)
+void XPlaneLog::Sink::sink_it_(const spdlog::details::log_msg &msg)
 {
     // Format the message
     spdlog::memory_buf_t formatted;
@@ -94,7 +94,7 @@ void XPlaneLog::XPlaneSink::sink_it_(const spdlog::details::log_msg &msg)
     XPLMDebugString(fmt::to_string(formatted).c_str());
 }
 
-void XPlaneLog::XPlaneSink::flush_()
+void XPlaneLog::Sink::flush_()
 {
     // Flush function can be empty as XPLMDebugString doesn't have a corresponding flush function
 }

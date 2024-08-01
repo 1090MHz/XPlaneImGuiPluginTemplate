@@ -34,7 +34,7 @@ public:
 
 private:
     // Custom sink for X-Plane
-    class XPlaneSink : public spdlog::sinks::base_sink<std::mutex>
+    class Sink : public spdlog::sinks::base_sink<std::mutex>
     {
     protected:
         void sink_it_(const spdlog::details::log_msg &msg) override;
