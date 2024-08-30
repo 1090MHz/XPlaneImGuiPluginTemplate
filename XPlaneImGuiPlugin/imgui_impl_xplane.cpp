@@ -468,6 +468,21 @@ namespace ImGui
             XPlaneLog::info("ImGui initialized for X-Plane.");
         }
 
+        ImFont *LoadFonts(const char *fontFilePath, float fontSize)
+        {
+            ImGuiIO &io = ImGui::GetIO();
+            ImFont *font = io.Fonts->AddFontFromFileTTF(fontFilePath, fontSize);
+            if (font == nullptr)
+            {
+                XPlaneLog::error(("Failed to load font: " + std::string(fontFilePath)).c_str());
+            }
+            else
+            {
+                XPlaneLog::info(("Successfully loaded font: " + std::string(fontFilePath)).c_str());
+            }
+            return font;
+        }
+
         static void EnsureImGuiDrawCallbackRegistered()
         {
             if (!isDrawCallbackRegistered)
