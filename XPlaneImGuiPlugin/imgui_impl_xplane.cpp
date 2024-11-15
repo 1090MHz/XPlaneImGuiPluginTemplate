@@ -18,7 +18,12 @@
 
 // OpenGL3 backend for ImGui
 #include <backends/imgui_impl_opengl3.h>
+#include <backends/imgui_impl_opengl3_loader.h> // required for OpenGL3 loader: glTexImage2D, glTexParameteri, etc.
+
+// Project-specific headers
 #include "XPlaneLog.h"
+
+#include "XPLMGraphics.h"
 
 // Logging macro for function calls with plugin name
 #define LOG_CALL(func, ...)                                            \
@@ -47,6 +52,12 @@ namespace ImGui
 
         // Flag to check if the draw callback is registered
         static bool isDrawCallbackRegistered = false;
+
+        // Structure to store loaded fonts
+        LoadedFonts loadedFonts;
+
+        // Global font profiles
+        std::vector<FontProfile> fontProfiles;
 
         // Caution: The menu bar height is not included in the screen height and it may vary across platforms
         // int g_menuBarHeight = 30; // Height of the menu bar
@@ -471,19 +482,87 @@ namespace ImGui
             XPlaneLog::info("ImGui initialized for X-Plane.");
         }
 
-        ImFont *LoadFonts(const char *fontFilePath, float fontSize)
+        void AddGlyphToDefaultFont(const void *font_data, int font_size, float font_pixel_size, const ImWchar *glyphs_ranges, float glyphMinAdvanceXFactor)
         {
             ImGuiIO &io = ImGui::GetIO();
-            ImFont *font = io.Fonts->AddFontFromFileTTF(fontFilePath, fontSize);
-            if (font == nullptr)
+            io.Fonts->AddFontDefault();
+
+            ImFontConfig icons_config;
+            icons_config.MergeMode = true;
+            icons_config.PixelSnapH = true;
+            icons_config.GlyphMinAdvanceX = font_pixel_size * glyphMinAdvanceXFactor;
+
+            io.Fonts->AddFontFromMemoryCompressedTTF(font_data, font_size, font_pixel_size, &icons_config, glyphs_ranges);
+
+            // Build the font atlas
+            unsigned char *tex_pixels = nullptr;
+            int tex_width, tex_height;
+            io.Fonts->GetTexDataAsRGBA32(&tex_pixels, &tex_width, &tex_height);
+
+            // Generate texture ID using X-Plane's function
+            int textureID;
+            XPLMGenerateTextureNumbers(&textureID, 1);
+
+            // Bind the texture using X-Plane's function
+            XPLMBindTexture2d(textureID, 0);
+
+            // Upload the texture to the generated texture ID
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_pixels);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            // Set the texture ID in ImGui
+            io.Fonts->TexID = (void *)(intptr_t)textureID;
+        }
+
+        ImFont *LoadFontProfile(const std::string &name, const std::string &fontPath, float size)
+        {
+            XPlaneLog::info(("Loading: " + fontPath).c_str());
+
+            fontProfiles.push_back({name, fontPath, size});
+
+            // Construct the path to imgui.ini within the plugin's directory
+            std::filesystem::path path(pluginPath.c_str());
+            std::filesystem::path pluginFolder = path.parent_path();
+
+            // Construct the full path to the font file
+            std::filesystem::path fullPath(fontPath);
+            if (fullPath.is_relative())
             {
-                XPlaneLog::error(("Failed to load font: " + std::string(fontFilePath)).c_str());
+                // Construct the full path using the plugin folder
+                fullPath = pluginFolder / fontPath;
+            }
+
+            // Load the font
+            ImGuiIO &io = ImGui::GetIO();
+            ImFont *font = io.Fonts->AddFontFromFileTTF(fullPath.string().c_str(), size);
+            IM_ASSERT(font != nullptr);
+            if (font)
+            {
+                loadedFonts.fontMap[name] = font;
+                return font;
             }
             else
             {
-                XPlaneLog::info(("Successfully loaded font: " + std::string(fontFilePath)).c_str());
+                XPlaneLog::error(("Failed to load font: " + fontPath).c_str());
+                return nullptr;
             }
-            return font;
+        }
+
+        void BuildFontAtlas()
+        {
+            ImGui::GetIO().Fonts->Build();
+            XPlaneLog::info("Font atlas built successfully.");
+        }
+
+        ImFont *GetFont(const std::string &name)
+        {
+            auto it = loadedFonts.fontMap.find(name);
+            if (it != loadedFonts.fontMap.end())
+        {
+                return it->second;
+            }
+            return nullptr; // or handle the case where the font is not found
         }
 
         static void EnsureImGuiDrawCallbackRegistered()
