@@ -1,7 +1,7 @@
-#include "imgui_impl_xplane.h"
-
 // Windows SDK headers
 #include <windows.h>
+
+#include "imgui_impl_xplane.h"
 
 // Standard library headers
 #include <filesystem>
