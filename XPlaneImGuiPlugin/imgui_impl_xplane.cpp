@@ -448,11 +448,14 @@ namespace ImGui
             SetupKeyMap(); // Needed to map X-Plane key codes to ImGui key codes
 
             // Determine the plugin's directory
-            char pluginPath[512];
-            XPLMGetPluginInfo(XPLMGetMyID(), nullptr, pluginPath, nullptr, nullptr);
+            // Initialize pluginPath with a size of 512
+            // Ensure that the path is null-terminated and has enough space for the full path
+            pluginPath.resize(512, '\0');
+
+            XPLMGetPluginInfo(XPLMGetMyID(), nullptr, &pluginPath[0], nullptr, nullptr);
 
             // Construct the path to imgui.ini within the plugin's directory
-            std::filesystem::path path(pluginPath);
+            std::filesystem::path path(pluginPath.c_str());
             std::filesystem::path iniFileName = "imgui.ini";
             std::filesystem::path iniPath = path.parent_path() / iniFileName;
 
