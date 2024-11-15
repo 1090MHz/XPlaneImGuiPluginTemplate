@@ -29,6 +29,9 @@ namespace ImGui
         // ImGui context pointer
         extern ImGuiContext *g_ImGuiContext;
 
+        // Static variable for pluginPath
+        static std::string pluginPath;
+
         class ImGuiRenderCallbackWrapper
         {
         public:
