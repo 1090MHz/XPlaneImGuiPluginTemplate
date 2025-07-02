@@ -7,6 +7,7 @@
 
 // Project-Specific Headers
 #include "imgui_impl_xplane.h"
+#include "MenuHandler.h"
 #include "XPlaneLog.h"
 #include "../third_party/fonts/fontawesome/fa-solid-900.inc"
 
@@ -21,17 +22,9 @@ PLUGIN_API int XPluginEnable(void);
 PLUGIN_API void XPluginDisable(void);
 
 // Global variables
-static XPLMMenuID g_menu_id = nullptr;
-// Define a structure to hold menu item indices
-struct MenuItems
-{
-    int togglePluginIntro;
-    int togglePluginFeatures;
-    int toggleImGuiStandaloneExample;
-};
 
-// Global instance of the structure for menu items
-static MenuItems g_menuItems;
+// Global instance of the structure for menu item and submenu items
+static std::unique_ptr<MenuItem> g_menu;
 
 // Define a structure to hold window visibility states
 struct WindowStates
@@ -56,34 +49,19 @@ static ImFont* DroidSansMono_20 = nullptr;
 static ImFont* OpenSans_Regular = nullptr;
 static ImFont* OpenSans_Bold = nullptr;
 
-// Updated menuHandler function
-void menuHandler(void *inMenuRef, void *inItemRef)
-{
-    // Cast inItemRef to intptr_t for comparison
-    intptr_t itemRef = reinterpret_cast<intptr_t>(inItemRef);
-    // clang-format off
-    switch (itemRef) {
-        case 1: g_windowStates.showPluginIntro = !g_windowStates.showPluginIntro; break;
-        case 2: g_windowStates.showPluginFeatures = !g_windowStates.showPluginFeatures; break;
-        case 3: g_windowStates.showImGuiStandaloneExample = !g_windowStates.showImGuiStandaloneExample; break;
-        default: break; // Handle other cases or do nothing
-    }
-    // clang-format on
-}
-
-// Updated createMenu function
+// Function to create the menu
 void createMenu()
 {
-    int PluginMenuItem = XPLMAppendMenuItem(XPLMFindPluginsMenu(), "ImGui Window Toggle", 0, 0);
-    g_menu_id = XPLMCreateMenu("XPlaneImGuiPlugin", XPLMFindPluginsMenu(), PluginMenuItem, menuHandler, nullptr);
+    g_menu = std::make_unique<MenuItem>("XPlane ImGui");
 
-    // Initialize the menu item counter
-    int menuItemCounter = 1;
+    g_menu->addSubItem("Toggle Plugin Intro", []()
+                       { g_windowStates.showPluginIntro = !g_windowStates.showPluginIntro; });
 
-    // Append menu items for each window and store their indices
-    g_menuItems.togglePluginIntro = XPLMAppendMenuItem(g_menu_id, "Toggle Plugin Intro", (void *)(intptr_t)menuItemCounter++, 1);
-    g_menuItems.togglePluginFeatures = XPLMAppendMenuItem(g_menu_id, "Toggle Plugin Features Info", (void *)(intptr_t)menuItemCounter++, 1);
-    g_menuItems.toggleImGuiStandaloneExample = XPLMAppendMenuItem(g_menu_id, "Toggle ImGui Standalone Example", (void *)(intptr_t)menuItemCounter++, 1);
+    g_menu->addSubItem("Toggle Plugin Features", []()
+                       { g_windowStates.showPluginFeatures = !g_windowStates.showPluginFeatures; });
+
+    g_menu->addSubItem("Toggle ImGui Standalone Example", []()
+                       { g_windowStates.showImGuiStandaloneExample = !g_windowStates.showImGuiStandaloneExample; });
     // Add more menu items as needed
 }
 
