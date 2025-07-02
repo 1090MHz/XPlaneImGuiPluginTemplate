@@ -110,12 +110,18 @@ namespace ImGui
                 if (XPLMHasKeyboardFocus(inWindowID))
                 {
                     XPLMTakeKeyboardFocus(nullptr);
-                    // Iterate over 'KeysDown' array and set all keys to 'false'
-                    // This ensures no keys are mistakenly considered pressed when the window loses focus
-                    for (auto &key : io.KeysDown)
-                    {
-                        key = false;
-                    }
+
+                    // Get ImGui IO object
+                    ImGuiIO& io = ImGui::GetIO();
+                    
+                    // Clear input keys (in case any are pending)
+                    io.ClearInputKeys();
+                    
+                    // Clear all incoming events
+                    io.ClearEventsQueue();
+
+                    // Clear mouse input (in case any is pending)
+                    io.ClearInputMouse();
                 }
 
                 // Remove focus from the current ImGui window
@@ -235,41 +241,82 @@ namespace ImGui
         static void HandleKeyEvent(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus)
         {
             ImGuiIO &io = ImGui::GetIO();
-
+            // Ensure ImGui is capturing keyboard input
             if (io.WantCaptureKeyboard)
             {
-                // Forward the key event to ImGui
-                io.KeysDown[static_cast<int>((unsigned char)virtual_key)] = (flags & xplm_UpFlag) == 0;
+                // Determine if the key is pressed or released to Forward the event to ImGui
+                bool keyDown = (flags & xplm_UpFlag) == 0; // Key down event (not key up)
+        
+                // Handle control, shift, and alt states
                 io.KeyCtrl = (flags & xplm_ControlFlag) != 0;
                 io.KeyShift = (flags & xplm_ShiftFlag) != 0;
                 io.KeyAlt = (flags & xplm_OptionAltFlag) != 0;
-
+        
+                ImGuiKey imguiKey = ImGuiKey_None; // Default to None if not mapped
+        
+                // Map X-Plane virtual keys to ImGui keys using a switch statement
+                switch (virtual_key)
+                {
+                    case XPLM_VK_TAB:            imguiKey = ImGuiKey_Tab; break;
+                    case XPLM_VK_LEFT:           imguiKey = ImGuiKey_LeftArrow; break;
+                    case XPLM_VK_RIGHT:          imguiKey = ImGuiKey_RightArrow; break;
+                    case XPLM_VK_UP:             imguiKey = ImGuiKey_UpArrow; break;
+                    case XPLM_VK_DOWN:           imguiKey = ImGuiKey_DownArrow; break;
+                    case XPLM_VK_RETURN:         imguiKey = ImGuiKey_Enter; break;
+                    case XPLM_VK_BACK:           imguiKey = ImGuiKey_Backspace; break;
+                    case XPLM_VK_ESCAPE:         imguiKey = ImGuiKey_Escape; break;
+                    case XPLM_VK_INSERT:         imguiKey = ImGuiKey_Insert; break;
+                    case XPLM_VK_DELETE:         imguiKey = ImGuiKey_Delete; break;
+                    case XPLM_VK_SPACE:          imguiKey = ImGuiKey_Space; break;
+                    case XPLM_VK_PRIOR:          imguiKey = ImGuiKey_PageUp; break;
+                    case XPLM_VK_NEXT:           imguiKey = ImGuiKey_PageDown; break;
+                    case XPLM_VK_HOME:           imguiKey = ImGuiKey_Home; break;
+                    case XPLM_VK_END:            imguiKey = ImGuiKey_End; break;
+                    case XPLM_VK_A:              imguiKey = ImGuiKey_A; break;
+                    case XPLM_VK_B:              imguiKey = ImGuiKey_B; break;
+                    // Add additional key mappings here...
+                    default: 
+                    {
+                        // Log the unrecognized key using the provided logger
+                        XPlaneLog::info(("Unrecognized virtual key: " + std::to_string(virtual_key)).c_str());
+                        imguiKey = ImGuiKey_None; 
+                        break; 
+                    }
+                }
+        
+                // Forward the key event to ImGui
+                if (imguiKey != ImGuiKey_None)
+                {
+                    io.AddKeyEvent(imguiKey, keyDown);
+                }
+        
                 // Handle character input for text input fields
-                if ((flags & xplm_UpFlag) == 0) // Only forward key down events
+                if (keyDown)
                 {
                     // Special handling for backspace key
                     if (virtual_key == XPLM_VK_BACK)
                     {
-                        io.KeysDown[ImGuiKey_Backspace] = true;
+                        io.AddKeyEvent(ImGuiKey_Backspace, true); // Backspace key down
                         // io.AddInputCharacter should not be used for backspace (non-printable character)
                     }
                     // Special handling for the return key
                     // XPLM_VK_RETURN: Use this when you want to detect the Enter key on the main keyboard.
                     else if (virtual_key == XPLM_VK_RETURN)
                     {
-                        io.KeysDown[ImGuiKey_Enter] = true;
+                        io.AddKeyEvent(ImGuiKey_Enter, true); // Main keyboard Enter
                         // io.AddInputCharacter should not be used for return (non-printable character)
                     }
                     // Special handling for enter key
                     // XPLM_VK_ENTER: Use this when you want to detect the Enter key on the numeric keypad.
                     else if (virtual_key == XPLM_VK_ENTER)
                     {
-                        io.KeysDown[ImGuiKey_KeypadEnter] = true;
+                        io.AddKeyEvent(ImGuiKey_KeypadEnter, true); // Keypad Enter
                         // io.AddInputCharacter should not be used for enter (non-printable character)
                     }
                     else
                     {
-                        io.AddInputCharacter((unsigned short)key);
+                        // Forward normal character input to ImGui for text fields
+                        io.AddInputCharacter((unsigned short)key); // Add the character to the input queue
                     }
                 }
                 else
@@ -277,17 +324,17 @@ namespace ImGui
                     // Special handling for backspace key release
                     if (virtual_key == XPLM_VK_BACK)
                     {
-                        io.KeysDown[ImGuiKey_Backspace] = false;
+                        io.AddKeyEvent(ImGuiKey_Backspace, false); // Backspace key up
                     }
                     // Special handling for return key release
                     else if (virtual_key == XPLM_VK_RETURN)
                     {
-                        io.KeysDown[ImGuiKey_Enter] = false;
+                        io.AddKeyEvent(ImGuiKey_Enter, false); // Main keyboard Enter key up
                     }
                     // Special handling for enter key release
                     else if (virtual_key == XPLM_VK_ENTER)
                     {
-                        io.KeysDown[ImGuiKey_Enter] = false;
+                        io.AddKeyEvent(ImGuiKey_KeypadEnter, false); // Keypad Enter key up
                     }
                 }
             }
@@ -402,36 +449,36 @@ namespace ImGui
         }
 
         // Function to set up the keymap
-        static void SetupKeyMap()
-        {
-            ImGuiIO &io = ImGui::GetIO(); // Get a reference to the ImGui I/O structure
+        //static void SetupKeyMap()
+        //{
+        //    ImGuiIO &io = ImGui::GetIO(); // Get a reference to the ImGui I/O structure
 
-            // Map ImGui keys to X-Plane virtual key codes
-            io.KeyMap[ImGuiKey_Tab] = XPLM_VK_TAB;           // Tab key
-            io.KeyMap[ImGuiKey_LeftArrow] = XPLM_VK_LEFT;    // Left arrow key
-            io.KeyMap[ImGuiKey_RightArrow] = XPLM_VK_RIGHT;  // Right arrow key
-            io.KeyMap[ImGuiKey_UpArrow] = XPLM_VK_UP;        // Up arrow key
-            io.KeyMap[ImGuiKey_DownArrow] = XPLM_VK_DOWN;    // Down arrow key
-            io.KeyMap[ImGuiKey_PageUp] = XPLM_VK_PRIOR;      // Page Up key
-            io.KeyMap[ImGuiKey_PageDown] = XPLM_VK_NEXT;     // Page Down key
-            io.KeyMap[ImGuiKey_Home] = XPLM_VK_HOME;         // Home key
-            io.KeyMap[ImGuiKey_End] = XPLM_VK_END;           // End key
-            io.KeyMap[ImGuiKey_Insert] = XPLM_VK_INSERT;     // Insert key
-            io.KeyMap[ImGuiKey_Delete] = XPLM_VK_DELETE;     // Delete key
-            io.KeyMap[ImGuiKey_Backspace] = XPLM_VK_BACK;    // Backspace key
-            io.KeyMap[ImGuiKey_Space] = XPLM_VK_SPACE;       // Space key
-            io.KeyMap[ImGuiKey_Enter] = XPLM_VK_RETURN;      // Enter key
-            io.KeyMap[ImGuiKey_Escape] = XPLM_VK_ESCAPE;     // Escape key
-            io.KeyMap[ImGuiKey_KeypadEnter] = XPLM_VK_ENTER; // Keypad Enter key
-            io.KeyMap[ImGuiKey_A] = XPLM_VK_A;               // 'A' key, needed for "Select All" (Ctrl+A)
-            io.KeyMap[ImGuiKey_C] = XPLM_VK_C;               // 'C' key, needed for "Copy" (Ctrl+C)
-            io.KeyMap[ImGuiKey_V] = XPLM_VK_V;               // 'V' key, needed for "Paste" (Ctrl+V)
-            io.KeyMap[ImGuiKey_X] = XPLM_VK_X;               // 'X' key, needed for "Cut" (Ctrl+X)
-            io.KeyMap[ImGuiKey_Y] = XPLM_VK_Y;               // 'Y' key, needed for "Redo" (Ctrl+Y)
-            io.KeyMap[ImGuiKey_Z] = XPLM_VK_Z;               // 'Z' key, needed for "Undo" (Ctrl+Z)
-        }
+        //    // Map ImGui keys to X-Plane virtual key codes
+        //    io.KeyMap[ImGuiKey_Tab] = XPLM_VK_TAB;           // Tab key
+        //    io.KeyMap[ImGuiKey_LeftArrow] = XPLM_VK_LEFT;    // Left arrow key
+        //    io.KeyMap[ImGuiKey_RightArrow] = XPLM_VK_RIGHT;  // Right arrow key
+        //    io.KeyMap[ImGuiKey_UpArrow] = XPLM_VK_UP;        // Up arrow key
+        //    io.KeyMap[ImGuiKey_DownArrow] = XPLM_VK_DOWN;    // Down arrow key
+        //    io.KeyMap[ImGuiKey_PageUp] = XPLM_VK_PRIOR;      // Page Up key
+        //    io.KeyMap[ImGuiKey_PageDown] = XPLM_VK_NEXT;     // Page Down key
+        //    io.KeyMap[ImGuiKey_Home] = XPLM_VK_HOME;         // Home key
+        //    io.KeyMap[ImGuiKey_End] = XPLM_VK_END;           // End key
+        //    io.KeyMap[ImGuiKey_Insert] = XPLM_VK_INSERT;     // Insert key
+        //    io.KeyMap[ImGuiKey_Delete] = XPLM_VK_DELETE;     // Delete key
+        //    io.KeyMap[ImGuiKey_Backspace] = XPLM_VK_BACK;    // Backspace key
+        //    io.KeyMap[ImGuiKey_Space] = XPLM_VK_SPACE;       // Space key
+        //    io.KeyMap[ImGuiKey_Enter] = XPLM_VK_RETURN;      // Enter key
+        //    io.KeyMap[ImGuiKey_Escape] = XPLM_VK_ESCAPE;     // Escape key
+        //    io.KeyMap[ImGuiKey_KeypadEnter] = XPLM_VK_ENTER; // Keypad Enter key
+        //    io.KeyMap[ImGuiKey_A] = XPLM_VK_A;               // 'A' key, needed for "Select All" (Ctrl+A)
+        //    io.KeyMap[ImGuiKey_C] = XPLM_VK_C;               // 'C' key, needed for "Copy" (Ctrl+C)
+        //    io.KeyMap[ImGuiKey_V] = XPLM_VK_V;               // 'V' key, needed for "Paste" (Ctrl+V)
+        //    io.KeyMap[ImGuiKey_X] = XPLM_VK_X;               // 'X' key, needed for "Cut" (Ctrl+X)
+        //    io.KeyMap[ImGuiKey_Y] = XPLM_VK_Y;               // 'Y' key, needed for "Redo" (Ctrl+Y)
+        //    io.KeyMap[ImGuiKey_Z] = XPLM_VK_Z;               // 'Z' key, needed for "Undo" (Ctrl+Z)
+        //}
 
-        void InitLogger()
+        static void InitLogger()
         {
             // Initialize the logger with a specific name
             XPlaneLog::init("ImGui::XP");
@@ -456,7 +503,7 @@ namespace ImGui
             // ImGui::StyleColorsClassic();
             // ImGui::StyleColorsLight();
 
-            SetupKeyMap(); // Needed to map X-Plane key codes to ImGui key codes
+            // SetupKeyMap(); // Needed to map X-Plane key codes to ImGui key codes
 
             // Determine the plugin's directory
             // Initialize pluginPath with a size of 512

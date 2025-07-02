@@ -69,7 +69,7 @@ namespace ImGui
 
         // Initialization and Shutdown
         void Init();        // Initialize ImGui for X-Plane. Add to XPluginStart.
-        void SetupKeyMap(); // Setup key map for ImGui. Used in Init.
+        // void SetupKeyMap(); // Setup key map for ImGui. Used in Init.
         void Shutdown();    // Shutdown ImGui for X-Plane. Add to XPluginStop.
 
         // Font Handling
