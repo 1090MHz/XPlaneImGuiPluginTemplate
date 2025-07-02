@@ -512,7 +512,7 @@ namespace ImGui
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
             // Set the texture ID in ImGui
-            io.Fonts->TexID = (void *)(intptr_t)textureID;
+            io.Fonts->TexID = (ImTextureID)(intptr_t)textureID;
         }
 
         ImFont *LoadFontProfile(const std::string &name, const std::string &fontPath, float size)
@@ -559,7 +559,7 @@ namespace ImGui
         {
             auto it = loadedFonts.fontMap.find(name);
             if (it != loadedFonts.fontMap.end())
-        {
+            {
                 return it->second;
             }
             return nullptr; // or handle the case where the font is not found
