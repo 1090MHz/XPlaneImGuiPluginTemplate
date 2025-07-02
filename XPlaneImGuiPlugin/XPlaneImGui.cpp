@@ -3,10 +3,12 @@
 
 // Third-Party Library Headers
 #include <imgui.h>
+#include <IconsFontAwesome5.h>
 
 // Project-Specific Headers
 #include "imgui_impl_xplane.h"
 #include "XPlaneLog.h"
+#include "../third_party/fonts/fontawesome/fa-solid-900.inc"
 
 // X-Plane SDK Headers
 #include "XPLMDisplay.h"
@@ -47,6 +49,12 @@ static WindowStates g_windowStates;
 static bool show_demo_window = true;
 static bool show_another_window = false;
 static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+// Font variables
+static ImFont* DroidSansMono = nullptr;
+static ImFont* DroidSansMono_20 = nullptr;
+static ImFont* OpenSans_Regular = nullptr;
+static ImFont* OpenSans_Bold = nullptr;
 
 // Updated menuHandler function
 void menuHandler(void *inMenuRef, void *inItemRef)
@@ -240,6 +248,86 @@ auto RenderPluginFeatures = []()
 };
 // clang-format on
 
+// Use to add selected glyphs to the default font
+void AddGlyphsToFontDefault()
+{
+    // Selectively add glyphs to the default font to save texture space
+    static ImVector<ImWchar> customGlyphRanges;
+    ImFontGlyphRangesBuilder fontGlyphRangesBuilder;
+    // Add the glyphs that are used in the ImGui widgets
+    // clang-format off
+    fontGlyphRangesBuilder.AddText(
+        ICON_FA_ADJUST
+        ICON_FA_ANGLE_DOUBLE_DOWN
+        ICON_FA_ANGLE_DOUBLE_UP
+        ICON_FA_ARROWS_ALT
+        ICON_FA_BARS
+        ICON_FA_BROADCAST_TOWER
+        ICON_FA_COG
+        ICON_FA_DOWNLOAD
+        ICON_FA_ELLIPSIS_H
+        ICON_FA_ERASER
+        ICON_FA_EXCLAMATION_TRIANGLE
+        ICON_FA_EXTERNAL_LINK_ALT
+        ICON_FA_EXTERNAL_LINK_SQUARE_ALT
+        ICON_FA_FILE
+        ICON_FA_FILE_ALT
+        ICON_FA_FILE_IMPORT
+        ICON_FA_GLOBE
+        ICON_FA_HOME
+        ICON_FA_ID_CARD
+        ICON_FA_INFO_CIRCLE
+        ICON_FA_LIST
+        ICON_FA_PAPER_PLANE
+        ICON_FA_PLANE
+        ICON_FA_PLANE_ARRIVAL
+        ICON_FA_PLANE_DEPARTURE
+        ICON_FA_PLANE_SLASH
+        ICON_FA_PROJECT_DIAGRAM
+        ICON_FA_QUESTION
+        ICON_FA_ROAD
+        ICON_FA_SAVE
+        ICON_FA_SEARCH
+        ICON_FA_SUITCASE
+        ICON_FA_TIMES
+        ICON_FA_USER_CIRCLE
+        ICON_FA_WINDOW_MAXIMIZE
+        ICON_FA_WINDOW_RESTORE
+    );
+    // clang-format on
+    fontGlyphRangesBuilder.BuildRanges(&customGlyphRanges);
+
+    int charWidth, charHeight;
+    XPLMGetFontDimensions(xplmFont_Proportional, &charWidth, &charHeight, NULL);
+
+    float baseFontSize = static_cast<float>(charHeight); // Use the height of the default font
+
+    ImGui::XP::AddGlyphToDefaultFont(fa_solid_900_compressed_data, fa_solid_900_compressed_size, baseFontSize, customGlyphRanges.Data, 2.0f / 3.0f);
+}
+
+// Use to add all FontAwesome icons to the default font
+void AddFontAwesomeIcons()
+{
+    int charWidth, charHeight;
+    XPLMGetFontDimensions(xplmFont_Proportional, &charWidth, &charHeight, NULL);
+
+    float baseFontSize = static_cast<float>(charHeight); // Use the height of the default font
+    static const ImWchar glyph_ranges[] = {ICON_MIN_FA, ICON_MAX_FA, 0};
+    ImGui::XP::AddGlyphToDefaultFont(fa_solid_900_compressed_data, fa_solid_900_compressed_size, baseFontSize, glyph_ranges, 2.0f / 3.0f);
+}
+
+// Load fonts using font profiles: name, path, and size
+void LoadFonts()
+{
+    DroidSansMono = ImGui::XP::LoadFontProfile("DroidSansMono", "../third_party/fonts/droid-sans-mono/DroidSansMono.ttf", 16.0f);
+    DroidSansMono_20 = ImGui::XP::LoadFontProfile("DroidSansMono_20", "../third_party/fonts/droid-sans-mono/DroidSansMono.ttf", 20.0f);
+    OpenSans_Regular = ImGui::XP::LoadFontProfile("OpenSans_Regular", "../third_party/fonts/open-sans/OpenSans-Regular.ttf", 16.0f);
+    OpenSans_Bold = ImGui::XP::LoadFontProfile("OpenSans_Bold", "../third_party/fonts/open-sans/OpenSans-Bold.ttf", 18.0f);
+
+    // Build the font atlas
+    ImGui::XP::BuildFontAtlas();
+}
+
 // Use ImGuiRenderCallbackWrapper to wrap render callbacks, optionally passing a flag to enable/disable the callback
 auto XPlanePluginIntroRenderCallback = ImGui::XP::ImGuiRenderCallbackWrapper(XPlanePluginIntroRender);
 auto RenderPluginFeaturesCallback = ImGui::XP::ImGuiRenderCallbackWrapper(RenderPluginFeatures, &g_windowStates.showPluginFeatures);
@@ -255,6 +343,13 @@ PLUGIN_API int XPluginStart(char *out_name, char *out_signature, char *out_descr
     XPlaneLog::init(out_name);
 
     ImGui::XP::Init();
+
+    // Add FontAwesome icons to the default font
+    // AddFontAwesomeIcons();
+    AddGlyphsToFontDefault();
+
+    // Load additional fonts
+    LoadFonts();
 
     // Initialize the menu
     createMenu(); // Assuming create_menu() is the function you've defined to set up the menu

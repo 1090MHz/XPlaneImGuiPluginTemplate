@@ -1,10 +1,17 @@
 #ifndef IMGUI_IMPL_XPLANE_H
 #define IMGUI_IMPL_XPLANE_H
 
+// X-Plane SDK
 #include <XPLMDisplay.h>
+
+// ImGui
 #include "imgui.h"
-#include <vector>
+
+// Standard Library
 #include <functional>
+#include <map>
+#include <string>
+#include <vector>
 
 namespace ImGui
 {
@@ -28,6 +35,9 @@ namespace ImGui
 
         // ImGui context pointer
         extern ImGuiContext *g_ImGuiContext;
+
+        // Static variable for pluginPath
+        static std::string pluginPath;
 
         class ImGuiRenderCallbackWrapper
         {
@@ -59,9 +69,26 @@ namespace ImGui
 
         // Initialization and Shutdown
         void Init();        // Initialize ImGui for X-Plane. Add to XPluginStart.
-        ImFont *LoadFonts(const char *fontFilePath, float fontSize); // Load custom font for ImGui.
         void SetupKeyMap(); // Setup key map for ImGui. Used in Init.
         void Shutdown();    // Shutdown ImGui for X-Plane. Add to XPluginStop.
+
+        // Font Handling
+        struct LoadedFonts
+        {
+            std::map<std::string, ImFont *> fontMap;
+        };
+
+        struct FontProfile
+        {
+            std::string name;
+            std::string path;
+            float size;
+        };
+
+        void AddGlyphToDefaultFont(const void *font_data, int font_size, float font_pixel_size, const ImWchar *icons_ranges, float glyphMinAdvanceXFactor = 1.0f);
+        ImFont *LoadFontProfile(const std::string &name, const std::string &path, float size);
+        void BuildFontAtlas();
+        ImFont *GetFont(const std::string &name);
 
         // Frame Handling
         void BeginFrame(); // Begins a new ImGui frame. Used at the beginning of drawing callback.
