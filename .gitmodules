@@ -13,3 +13,6 @@
 [submodule "PreflightCheckLibs"]
 	path = PreflightCheckLibs
 	url = https://github.com/1090MHz/PreflightCheckLibs.git
+[submodule "IconFontCppHeaders"]
+	path = IconFontCppHeaders
+	url = https://github.com/juliettef/IconFontCppHeaders.git
