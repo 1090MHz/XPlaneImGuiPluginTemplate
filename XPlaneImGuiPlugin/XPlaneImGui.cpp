@@ -227,7 +227,7 @@ auto RenderPluginFeatures = []()
 // clang-format on
 
 // Use to add selected glyphs to the default font
-void AddGlyphsToFontDefault()
+static void AddGlyphsToFontDefault()
 {
     // Selectively add glyphs to the default font to save texture space
     static ImVector<ImWchar> customGlyphRanges;
@@ -284,7 +284,7 @@ void AddGlyphsToFontDefault()
 }
 
 // Use to add all FontAwesome icons to the default font
-void AddFontAwesomeIcons()
+static void AddFontAwesomeIcons()
 {
     int charWidth, charHeight;
     XPLMGetFontDimensions(xplmFont_Proportional, &charWidth, &charHeight, NULL);
@@ -295,7 +295,7 @@ void AddFontAwesomeIcons()
 }
 
 // Load fonts using font profiles: name, path, and size
-void LoadFonts()
+static void LoadFonts()
 {
     DroidSansMono = ImGui::XP::LoadFontProfile("DroidSansMono", "../third_party/fonts/droid-sans-mono/DroidSansMono.ttf", 16.0f);
     DroidSansMono_20 = ImGui::XP::LoadFontProfile("DroidSansMono_20", "../third_party/fonts/droid-sans-mono/DroidSansMono.ttf", 20.0f);
