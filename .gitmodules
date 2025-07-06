@@ -1,9 +1,6 @@
 [submodule "imgui"]
 	path = imgui
 	url = https://github.com/ocornut/imgui.git
-[submodule "PPL"]
-	path = PPL
-	url = https://github.com/1090MHz/PPL.git
 [submodule "spdlog"]
 	path = spdlog
 	url = https://github.com/gabime/spdlog.git
