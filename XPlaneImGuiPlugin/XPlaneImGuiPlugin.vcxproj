@@ -182,6 +182,7 @@
     <ClCompile Include="..\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\imgui\imgui_widgets.cpp" />
     <ClCompile Include="imgui_impl_xplane.cpp" />
+    <ClCompile Include="MenuHandler.cpp" />
     <ClCompile Include="XPlaneImGui.cpp" />
     <ClCompile Include="XPlaneLog.cpp" />
   </ItemGroup>
@@ -189,6 +190,7 @@
     <ClInclude Include="..\imgui\backends\imgui_impl_opengl3.h" />
     <ClInclude Include="..\imgui\imgui.h" />
     <ClInclude Include="imgui_impl_xplane.h" />
+    <ClInclude Include="MenuHandler.h" />
     <ClInclude Include="XPlaneLog.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

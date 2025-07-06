@@ -54,6 +54,9 @@
     <ClCompile Include="XPlaneLog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MenuHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imgui_impl_xplane.h">
@@ -66,6 +69,9 @@
       <Filter>Header Files\imgui\backends</Filter>
     </ClInclude>
     <ClInclude Include="XPlaneLog.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
