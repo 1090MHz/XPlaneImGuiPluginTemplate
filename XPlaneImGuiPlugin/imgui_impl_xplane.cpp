@@ -49,7 +49,7 @@ namespace ImGui
         int ImGuiRenderCallbackWrapper::s_nextId = 0;
 
         // Vector to store ImGui render callbacks
-        static std::vector<ImGuiRenderCallbackWrapper> g_ImGuiRenderCallbacks;
+        std::vector<ImGuiRenderCallbackWrapper> g_ImGuiRenderCallbacks;
 
         // Flag to check if the draw callback is registered
         static bool isDrawCallbackRegistered = false;
@@ -64,7 +64,7 @@ namespace ImGui
         // int g_menuBarHeight = 30; // Height of the menu bar
 
         // Update window geometry
-        static void UpdateWindowGeometry()
+        void UpdateWindowGeometry()
         {
             // Update g_WindowGeometry with the new geometry of the "Minimal Window"
             XPLMGetWindowGeometry(xplmWindowID, &g_WindowGeometry.left, &g_WindowGeometry.top, &g_WindowGeometry.right, &g_WindowGeometry.bottom);
@@ -74,7 +74,7 @@ namespace ImGui
         }
 
         // Callbacks
-        static int HandleMouseClickEvent(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus isDown, void *inRefcon)
+        int HandleMouseClickEvent(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus isDown, void *inRefcon)
         {
             // Update ImGui mouse position
             ImGuiIO &io = ImGui::GetIO();
@@ -134,7 +134,7 @@ namespace ImGui
             }
         }
 
-        static XPLMCursorStatus HandleCursorEvent(XPLMWindowID inWindowID, int x, int y, void *inRefcon)
+        XPLMCursorStatus HandleCursorEvent(XPLMWindowID inWindowID, int x, int y, void *inRefcon)
         {
             // Update ImGui mouse position
             ImGuiIO &io = ImGui::GetIO();
@@ -149,7 +149,8 @@ namespace ImGui
                 // Get the current ImGui mouse cursor
                 ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
 
-                // Map ImGui cursor to system cursor
+#ifdef _WIN32
+                // Map ImGui cursor to system cursor (Windows only)
                 switch (imgui_cursor)
                 {
                 case ImGuiMouseCursor_Arrow:
@@ -183,6 +184,8 @@ namespace ImGui
                     SetCursor(LoadCursor(NULL, IDC_ARROW));
                     break;
                 }
+#endif
+                // TODO: Implement cursor handling for macOS and Linux
 
                 return xplm_CursorCustom;
             }
@@ -195,7 +198,7 @@ namespace ImGui
             // Do not draw anything for transparency
         }
 
-        static int HandleRightClickEvent(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon)
+        int HandleRightClickEvent(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon)
         {
             // Update ImGui mouse position
             ImGuiIO &io = ImGui::GetIO();
@@ -228,7 +231,7 @@ namespace ImGui
             }
         }
 
-        static int HandleMouseWheelEvent(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon)
+        int HandleMouseWheelEvent(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon)
         {
             ImGuiIO &io = ImGui::GetIO();
             if (io.WantCaptureMouse)
@@ -239,7 +242,7 @@ namespace ImGui
             return 0; // Let the event pass through to the underlying application
         }
 
-        static void HandleKeyEvent(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus)
+        void HandleKeyEvent(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus)
         {
             ImGuiIO &io = ImGui::GetIO();
             // Ensure ImGui is capturing keyboard input
@@ -441,7 +444,7 @@ namespace ImGui
             }
         }
 
-        static void InitializeTransparentImGuiOverlay()
+        void InitializeTransparentImGuiOverlay()
         {
             XPLMCreateWindow_t params{};
             params.structSize = sizeof(params);
@@ -531,7 +534,7 @@ namespace ImGui
         }
 
         // Renders ImGui frame within OpenGL context
-        static int RenderImGuiFrame(XPLMDrawingPhase phase, int isBefore, void *refcon)
+        int RenderImGuiFrame(XPLMDrawingPhase phase, int isBefore, void *refcon)
         {
             BeginFrame();
 
