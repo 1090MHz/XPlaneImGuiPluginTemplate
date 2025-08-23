@@ -40,9 +40,13 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libs/XPSDK410/CHeaders/XPL
     include_directories(../third_party/libs/XPSDK410/CHeaders/XPLM)
 endif()
 
+# X-Plane SDK version definitions (needed for all platforms)
+add_definitions(-DXPLM400 -DXPLM302 -DXPLM301 -DXPLM300 -DXPLM210 -DXPLM200)
+
 # Platform-specific settings
 if(WIN32)
-    add_definitions(-DIBM -DXPLM400 -DXPLM302 -DXPLM301 -DXPLM300 -DXPLM210 -DXPLM200)
+    # Add Windows-specific settings here
+    add_definitions(-DIBM=1)
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libs/XPSDK410/Libraries/Win")
         link_directories(../third_party/libs/XPSDK410/Libraries/Win)
         set(EXTRA_LIBS OpenGL32 XPLM_64 XPWidgets_64)
@@ -51,10 +55,12 @@ if(WIN32)
     endif()
 elseif(APPLE)
     # Add macOS-specific settings here
+    add_definitions(-DAPL=1)
     find_library(COCOA_LIBRARY Cocoa)
     set(EXTRA_LIBS ${COCOA_LIBRARY})
 elseif(UNIX)
     # Add Linux-specific settings here
+    add_definitions(-DLIN=1)
     find_package(OpenGL REQUIRED)
     set(EXTRA_LIBS ${OPENGL_LIBRARIES})
 endif()
