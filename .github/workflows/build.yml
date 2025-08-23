@@ -1,0 +1,124 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        include:
+          - os: windows-latest
+            arch: win_x64
+          - os: ubuntu-latest
+            arch: lin_x64
+          - os: macos-latest
+            arch: mac_x64
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Verify submodules
+      run: |
+        echo "Checking submodules..."
+        ls -la PreflightCheckLibs/
+        test -f "PreflightCheckLibs/docker-compose.yml"
+
+    - name: Set up Docker (Windows/Linux)
+      if: runner.os != 'macOS'
+      uses: docker/setup-buildx-action@v3
+
+    - name: Set up Docker (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        # Install Docker Desktop for macOS is complex in CI
+        # For now, we'll skip Docker setup on macOS and test build without dependencies
+        echo "Skipping Docker setup on macOS for CI"
+
+    - name: Setup dependencies with Docker (Windows)
+      if: runner.os == 'Windows'
+      shell: powershell
+      run: |
+        $env:EXPORT_BASE_DIR="../third_party"
+        docker-compose -f ./PreflightCheckLibs/docker-compose.yml up
+      working-directory: ${{ github.workspace }}
+      continue-on-error: true
+
+    - name: Setup dependencies with Docker (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        EXPORT_BASE_DIR="../third_party" docker-compose -f ./PreflightCheckLibs/docker-compose.yml up
+      working-directory: ${{ github.workspace }}
+      continue-on-error: true
+
+    - name: Verify dependencies were created
+      if: runner.os != 'macOS'
+      run: |
+        echo "Checking if dependencies were created..."
+        if [ -d "third_party" ]; then
+          echo "third_party directory exists"
+          ls -la third_party/
+        else
+          echo "third_party directory not found - Docker setup may have failed"
+        fi
+
+    - name: Create minimal dependencies (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        # Create minimal structure for macOS build test
+        mkdir -p third_party/libs/XPSDK410/CHeaders/XPLM
+        mkdir -p third_party/fonts/open-sans
+        mkdir -p third_party/fonts/droid-sans-mono
+        # Create dummy SDK header for build test
+        echo "// Dummy XPLM header for CI" > third_party/libs/XPSDK410/CHeaders/XPLM/XPLMPlugin.h
+
+    - name: Setup CMake
+      uses: jwlawson/actions-setup-cmake@v1.14
+      with:
+        cmake-version: '3.15'
+
+    - name: Configure CMake
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: |
+        cd build
+        cmake --build . --config Release
+
+    - name: Test install (create staging directory)
+      run: |
+        cd build
+        cmake --install . --prefix "./staging"
+
+    - name: Verify build artifacts
+      shell: bash
+      run: |
+        cd build/staging
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          ls -la win_x64/
+          test -f "win_x64/XPlaneImGuiPlugin.xpl"
+        elif [ "${{ runner.os }}" = "Linux" ]; then
+          ls -la lin_x64/
+          test -f "lin_x64/XPlaneImGuiPlugin.xpl"
+        elif [ "${{ runner.os }}" = "macOS" ]; then
+          ls -la mac_x64/
+          test -f "mac_x64/XPlaneImGuiPlugin.xpl"
+        fi
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: plugin-${{ matrix.arch }}
+        path: build/staging/
+        retention-days: 7
