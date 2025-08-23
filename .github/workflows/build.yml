@@ -63,18 +63,6 @@ jobs:
         name: third_party
         path: third_party/
 
-    - name: Verify downloaded dependencies
-      shell: bash
-      run: |
-        echo "=== Downloaded third_party structure ==="
-        find third_party -type f -name "*.h" | head -10
-        echo "=== X-Plane SDK check ==="
-        ls -la third_party/libs/XPSDK410/CHeaders/XPLM/ || echo "X-Plane SDK not found"
-        echo "=== OpenGL headers check ==="
-        find third_party -name "gl.h" -o -name "GL.h" | head -5
-        echo "=== Total files available ==="
-        find third_party -type f | wc -l
-
     - name: Install OpenGL dev libraries (Linux)
       if: runner.os == 'Linux'
       run: |
