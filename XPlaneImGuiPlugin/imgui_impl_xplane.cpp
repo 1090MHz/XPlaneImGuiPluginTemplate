@@ -1,5 +1,7 @@
 // Windows SDK headers
+#ifdef _WIN32
 #include <windows.h>
+#endif
 
 #include "imgui_impl_xplane.h"
 
