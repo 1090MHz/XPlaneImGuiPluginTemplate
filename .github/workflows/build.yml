@@ -64,6 +64,7 @@ jobs:
         path: third_party/
 
     - name: Verify downloaded dependencies
+      shell: bash
       run: |
         echo "=== Downloaded third_party structure ==="
         find third_party -type f -name "*.h" | head -10
