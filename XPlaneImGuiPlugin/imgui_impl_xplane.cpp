@@ -14,6 +14,7 @@
 #include <XPLMDisplay.h>
 #include <XPLMPlugin.h>
 #include <XPLMUtilities.h>
+#include <XPLMGraphics.h>
 
 // ImGui core library
 #include <imgui.h>
@@ -24,8 +25,6 @@
 
 // Project-specific headers
 #include "XPlaneLog.h"
-
-#include "XPLMGraphics.h"
 
 // Logging macro for function calls with plugin name
 #define LOG_CALL(func, ...)                                            \
