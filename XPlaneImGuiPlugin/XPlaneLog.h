@@ -17,6 +17,9 @@ public:
     // Initialize the logger
     static void init(const std::string &plugin_name);
 
+    // Shutdown the logger and clean up resources
+    static void shutdown();
+
     // Log a trace message
     static void trace(const std::string &message);
 
