@@ -12,15 +12,10 @@ jobs:
   setup-dependencies:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        submodules: recursive
-
     - name: Setup dependencies with Docker
       run: |
-        EXPORT_BASE_DIR="../third_party" docker compose -f ./PreflightCheckLibs/docker-compose.yml up || EXPORT_BASE_DIR="../third_party" docker-compose -f ./PreflightCheckLibs/docker-compose.yml up
-      working-directory: ${{ github.workspace }}
+        mkdir -p third_party
+        docker run --rm -v $PWD/third_party:/output 1090mhz/preflightchecklibs:latest
 
     - name: Upload dependencies
       uses: actions/upload-artifact@v4
