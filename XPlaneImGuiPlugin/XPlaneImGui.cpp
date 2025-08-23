@@ -99,7 +99,7 @@ void XPlanePluginIntroRender()
 // This design allows for a flexible and interactive GUI where the visibility and behavior of windows can be controlled through the captured variables.
 
 // clang-format off
-auto ImGuiStandaloneExample = [&]()
+auto ImGuiStandaloneExample = []()
 {
     // This example is based on the Dear ImGui standalone example.
     // For more information, visit: https://github.com/ocornut/imgui
