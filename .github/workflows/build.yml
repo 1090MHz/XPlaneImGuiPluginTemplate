@@ -93,9 +93,9 @@ jobs:
         pkg-config --cflags gl 2>/dev/null || echo "pkg-config gl not found"
 
     - name: Setup CMake
-      uses: jwlawson/actions-setup-cmake@v1.14
+      uses: jwlawson/actions-setup-cmake@v2.0
       with:
-        cmake-version: '3.15'
+        cmake-version: '3.25'
 
     - name: Configure CMake
       run: |
