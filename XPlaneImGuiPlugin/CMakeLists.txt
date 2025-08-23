@@ -79,6 +79,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${EXTRA_LIBS})
 # Set output name to .xpl for X-Plane plugin
 set_target_properties(${PROJECT_NAME} PROPERTIES
     OUTPUT_NAME "${PROJECT_NAME}"
+    PREFIX ""
     SUFFIX ".xpl"
 )
 
