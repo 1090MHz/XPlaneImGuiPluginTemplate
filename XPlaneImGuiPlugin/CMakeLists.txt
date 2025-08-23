@@ -5,6 +5,11 @@ project(XPlaneImGuiPlugin LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Require X-Plane SDK to be present
+if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libs/XPSDK410")
+    message(FATAL_ERROR "X-Plane SDK not found at ../third_party/libs/XPSDK410. Please ensure the SDK is properly installed.")
+endif()
+
 # Source files
 set(SOURCES
     imgui_impl_xplane.cpp
@@ -35,10 +40,8 @@ include_directories(
     ../IconFontCppHeaders
 )
 
-# Add X-Plane SDK if it exists
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libs/XPSDK410/CHeaders/XPLM")
-    include_directories(../third_party/libs/XPSDK410/CHeaders/XPLM)
-endif()
+# Add X-Plane SDK (SDK presence already verified above)
+include_directories(../third_party/libs/XPSDK410/CHeaders/XPLM)
 
 # X-Plane SDK version definitions (needed for all platforms)
 add_definitions(-DXPLM400 -DXPLM302 -DXPLM301 -DXPLM300 -DXPLM210 -DXPLM200)
@@ -47,22 +50,22 @@ add_definitions(-DXPLM400 -DXPLM302 -DXPLM301 -DXPLM300 -DXPLM210 -DXPLM200)
 if(WIN32)
     # Add Windows-specific settings here
     add_definitions(-DIBM=1)
-    if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libs/XPSDK410/Libraries/Win")
-        link_directories(../third_party/libs/XPSDK410/Libraries/Win)
-        set(EXTRA_LIBS OpenGL32 XPLM_64 XPWidgets_64)
-    else()
-        set(EXTRA_LIBS OpenGL32)
-    endif()
+    link_directories(../third_party/libs/XPSDK410/Libraries/Win)
+    set(EXTRA_LIBS OpenGL32 XPLM_64 XPWidgets_64)
 elseif(APPLE)
     # Add macOS-specific settings here
     add_definitions(-DAPL=1)
     find_library(COCOA_LIBRARY Cocoa)
-    set(EXTRA_LIBS ${COCOA_LIBRARY})
+    find_library(OPENGL_LIBRARY OpenGL)
+    find_library(XPLM_LIBRARY XPLM PATHS ../third_party/libs/XPSDK410/Libraries/Mac)
+    find_library(XPWIDGETS_LIBRARY XPWidgets PATHS ../third_party/libs/XPSDK410/Libraries/Mac)
+    set(EXTRA_LIBS ${COCOA_LIBRARY} ${OPENGL_LIBRARY} ${XPLM_LIBRARY} ${XPWIDGETS_LIBRARY})
 elseif(UNIX)
     # Add Linux-specific settings here
     add_definitions(-DLIN=1)
     find_package(OpenGL REQUIRED)
-    set(EXTRA_LIBS ${OPENGL_LIBRARIES})
+    link_directories(../third_party/libs/XPSDK410/Libraries/Lin)
+    set(EXTRA_LIBS ${OPENGL_LIBRARIES} XPLM_64 XPWidgets_64)
 endif()
 
 # Create shared library (X-Plane plugin)
