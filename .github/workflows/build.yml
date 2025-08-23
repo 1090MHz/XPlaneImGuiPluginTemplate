@@ -43,27 +43,6 @@ jobs:
       working-directory: ${{ github.workspace }}
       continue-on-error: true
 
-    - name: Verify dependencies were created
-      if: runner.os != 'macOS'
-      run: |
-        echo "Checking if dependencies were created..."
-        if [ -d "third_party" ]; then
-          echo "third_party directory exists"
-          ls -la third_party/
-        else
-          echo "third_party directory not found - Docker setup may have failed"
-        fi
-
-    - name: Create minimal dependencies (macOS)
-      if: runner.os == 'macOS'
-      run: |
-        # Create minimal structure for macOS build test
-        mkdir -p third_party/libs/XPSDK410/CHeaders/XPLM
-        mkdir -p third_party/fonts/open-sans
-        mkdir -p third_party/fonts/droid-sans-mono
-        # Create dummy SDK header for build test
-        echo "// Dummy XPLM header for CI" > third_party/libs/XPSDK410/CHeaders/XPLM/XPLMPlugin.h
-
     - name: Install OpenGL dev libraries (Linux)
       if: runner.os == 'Linux'
       run: |
