@@ -8,11 +8,33 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Setup dependencies once on Linux
+  setup-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup dependencies with Docker
+      run: |
+        EXPORT_BASE_DIR="../third_party" docker compose -f ./PreflightCheckLibs/docker-compose.yml up || EXPORT_BASE_DIR="../third_party" docker-compose -f ./PreflightCheckLibs/docker-compose.yml up
+      working-directory: ${{ github.workspace }}
+
+    - name: Upload dependencies
+      uses: actions/upload-artifact@v4
+      with:
+        name: third_party
+        path: third_party/
+        retention-days: 1
+
+  # Build on all platforms
   build:
+    needs: setup-dependencies
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
         include:
           - os: windows-latest
             arch: win_x64
@@ -27,28 +49,11 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Install Docker Compose (Windows)
-      if: runner.os == 'Windows'
-      shell: powershell
-      run: |
-        choco install docker-compose
-        docker compose --version
-
-    - name: Setup dependencies with Docker (Windows)
-      if: runner.os == 'Windows'
-      shell: powershell
-      run: |
-        $env:EXPORT_BASE_DIR="../third_party"
-        docker compose -f ./PreflightCheckLibs/docker-compose.yml up
-      working-directory: ${{ github.workspace }}
-      continue-on-error: true
-
-    - name: Setup dependencies with Docker (Linux)
-      if: runner.os == 'Linux'
-      run: |
-        EXPORT_BASE_DIR="../third_party" docker compose -f ./PreflightCheckLibs/docker-compose.yml up || EXPORT_BASE_DIR="../third_party" docker-compose -f ./PreflightCheckLibs/docker-compose.yml up
-      working-directory: ${{ github.workspace }}
-      continue-on-error: true
+    - name: Download dependencies
+      uses: actions/download-artifact@v4
+      with:
+        name: third_party
+        path: third_party/
 
     - name: Install OpenGL dev libraries (Linux)
       if: runner.os == 'Linux'
