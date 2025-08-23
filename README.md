@@ -1,5 +1,7 @@
 # XPlaneImGuiPluginTemplate
 
+[![Build Status](https://github.com/1090MHz/XPlaneImGuiPluginTemplate/workflows/Build/badge.svg?branch=main)](https://github.com/1090MHz/XPlaneImGuiPluginTemplate/actions)
+
 A lightweight X-Plane plugin that integrates ImGui for enhanced in-sim user interfaces.
 
 ## Building the Plugin
