@@ -12,7 +12,20 @@ jobs:
   setup-dependencies:
     runs-on: ubuntu-latest
     steps:
+    - name: Checkout code (for cache key)
+      uses: actions/checkout@v4
+
+    - name: Cache dependencies
+      id: cache-deps
+      uses: actions/cache@v3
+      with:
+        path: third_party
+        key: dependencies-v1-${{ hashFiles('PreflightCheckLibs/**') }}
+        restore-keys: |
+          dependencies-v1-
+
     - name: Setup dependencies with Docker
+      if: steps.cache-deps.outputs.cache-hit != 'true'
       run: |
         docker run --rm \
           -e EXPORT_BASE_DIR=/mnt/export \
