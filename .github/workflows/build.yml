@@ -32,21 +32,21 @@ jobs:
       shell: powershell
       run: |
         choco install docker-compose
-        docker-compose --version
+        docker compose --version
 
     - name: Setup dependencies with Docker (Windows)
       if: runner.os == 'Windows'
       shell: powershell
       run: |
         $env:EXPORT_BASE_DIR="../third_party"
-        docker-compose -f ./PreflightCheckLibs/docker-compose.yml up
+        docker compose -f ./PreflightCheckLibs/docker-compose.yml up
       working-directory: ${{ github.workspace }}
       continue-on-error: true
 
     - name: Setup dependencies with Docker (Linux)
       if: runner.os == 'Linux'
       run: |
-        EXPORT_BASE_DIR="../third_party" docker-compose -f ./PreflightCheckLibs/docker-compose.yml up
+        EXPORT_BASE_DIR="../third_party" docker compose -f ./PreflightCheckLibs/docker-compose.yml up || EXPORT_BASE_DIR="../third_party" docker-compose -f ./PreflightCheckLibs/docker-compose.yml up
       working-directory: ${{ github.workspace }}
       continue-on-error: true
 
