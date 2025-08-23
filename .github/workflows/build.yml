@@ -75,6 +75,12 @@ jobs:
         # Create dummy SDK header for build test
         echo "// Dummy XPLM header for CI" > third_party/libs/XPSDK410/CHeaders/XPLM/XPLMPlugin.h
 
+    - name: Install OpenGL dev libraries (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libgl1-mesa-dev
+
     - name: Setup CMake
       uses: jwlawson/actions-setup-cmake@v1.14
       with:
