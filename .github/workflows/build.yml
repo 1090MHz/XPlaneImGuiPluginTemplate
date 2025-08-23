@@ -27,6 +27,13 @@ jobs:
       with:
         submodules: recursive
 
+    - name: Install Docker Compose (Windows)
+      if: runner.os == 'Windows'
+      shell: powershell
+      run: |
+        choco install docker-compose
+        docker-compose --version
+
     - name: Setup dependencies with Docker (Windows)
       if: runner.os == 'Windows'
       shell: powershell
