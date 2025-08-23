@@ -5,13 +5,57 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
+  # Setup dependencies once on Linux
+  setup-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code (for cache key)
+      uses: actions/checkout@v4
+
+    - name: Cache dependencies
+      id: cache-deps
+      uses: actions/cache@v3
+      with:
+        path: third_party
+        key: dependencies-v1-${{ hashFiles('PreflightCheckLibs/**') }}
+        restore-keys: |
+          dependencies-v1-
+
+    - name: Setup dependencies with Docker
+      if: steps.cache-deps.outputs.cache-hit != 'true'
+      run: |
+        docker run --rm \
+          -e EXPORT_BASE_DIR=/mnt/export \
+          -v $PWD/third_party:/mnt/export \
+          1090mhz/preflightchecklibs:latest
+
+    - name: Verify dependencies were created
+      run: |
+        echo "=== Checking third_party structure ==="
+        find third_party -type f -name "*.h" | head -10
+        echo "=== X-Plane SDK check ==="
+        ls -la third_party/libs/XPSDK410/CHeaders/XPLM/ || echo "X-Plane SDK not found"
+        echo "=== Font check ==="
+        ls -la third_party/fonts/ || echo "Fonts not found"
+        echo "=== Total files created ==="
+        find third_party -type f | wc -l
+
+    - name: Upload dependencies
+      uses: actions/upload-artifact@v4
+      with:
+        name: third_party
+        path: third_party/
+        retention-days: 1
+
+  # Build on all platforms
   build:
+    needs: setup-dependencies
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
         include:
           - os: windows-latest
             arch: win_x64
@@ -26,75 +70,53 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Verify submodules
-      run: |
-        echo "Checking submodules..."
-        ls -la PreflightCheckLibs/
-        test -f "PreflightCheckLibs/docker-compose.yml"
+    - name: Download dependencies
+      uses: actions/download-artifact@v4
+      with:
+        name: third_party
+        path: third_party/
 
-    - name: Set up Docker (Windows/Linux)
-      if: runner.os != 'macOS'
-      uses: docker/setup-buildx-action@v3
-
-    - name: Set up Docker (macOS)
-      if: runner.os == 'macOS'
-      run: |
-        # Install Docker Desktop for macOS is complex in CI
-        # For now, we'll skip Docker setup on macOS and test build without dependencies
-        echo "Skipping Docker setup on macOS for CI"
-
-    - name: Setup dependencies with Docker (Windows)
-      if: runner.os == 'Windows'
-      shell: powershell
-      run: |
-        $env:EXPORT_BASE_DIR="../third_party"
-        docker-compose -f ./PreflightCheckLibs/docker-compose.yml up
-      working-directory: ${{ github.workspace }}
-      continue-on-error: true
-
-    - name: Setup dependencies with Docker (Linux)
+    - name: Install OpenGL dev libraries (Linux)
       if: runner.os == 'Linux'
       run: |
-        EXPORT_BASE_DIR="../third_party" docker-compose -f ./PreflightCheckLibs/docker-compose.yml up
-      working-directory: ${{ github.workspace }}
-      continue-on-error: true
+        sudo apt-get update
+        sudo apt-get install -y libgl1-mesa-dev
 
-    - name: Verify dependencies were created
-      if: runner.os != 'macOS'
+    - name: Verify OpenGL headers (Linux)
+      if: runner.os == 'Linux'
       run: |
-        echo "Checking if dependencies were created..."
-        if [ -d "third_party" ]; then
-          echo "third_party directory exists"
-          ls -la third_party/
-        else
-          echo "third_party directory not found - Docker setup may have failed"
-        fi
-
-    - name: Create minimal dependencies (macOS)
-      if: runner.os == 'macOS'
-      run: |
-        # Create minimal structure for macOS build test
-        mkdir -p third_party/libs/XPSDK410/CHeaders/XPLM
-        mkdir -p third_party/fonts/open-sans
-        mkdir -p third_party/fonts/droid-sans-mono
-        # Create dummy SDK header for build test
-        echo "// Dummy XPLM header for CI" > third_party/libs/XPSDK410/CHeaders/XPLM/XPLMPlugin.h
+        echo "=== System OpenGL headers check ==="
+        find /usr/include -name "gl.h" -o -name "GL.h" 2>/dev/null | head -5
+        echo "=== Mesa GL headers ==="
+        ls -la /usr/include/GL/ 2>/dev/null || echo "No /usr/include/GL/ directory"
+        echo "=== pkg-config check ==="
+        pkg-config --cflags gl 2>/dev/null || echo "pkg-config gl not found"
 
     - name: Setup CMake
-      uses: jwlawson/actions-setup-cmake@v1.14
+      uses: jwlawson/actions-setup-cmake@v2.0
       with:
-        cmake-version: '3.15'
+        cmake-version: '3.25'
 
     - name: Configure CMake
       run: |
         mkdir build
         cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Release
+        if [ "${{ runner.os }}" = "Windows" ]; then
+          echo "=== Starting Windows CMake configuration ==="
+          cmake .. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release
+          echo "=== Windows CMake configuration completed ==="
+        else
+          echo "=== CMake OpenGL discovery ==="
+          cmake .. -DCMAKE_BUILD_TYPE=Release --debug-output | grep -i opengl || true
+        fi
+      shell: bash
 
     - name: Build
       run: |
         cd build
+        echo "=== Starting build process ==="
         cmake --build . --config Release
+        echo "=== Build completed successfully ==="
 
     - name: Test install (create staging directory)
       run: |

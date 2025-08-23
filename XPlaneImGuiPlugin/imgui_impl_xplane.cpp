@@ -1,5 +1,7 @@
 // Windows SDK headers
+#ifdef _WIN32
 #include <windows.h>
+#endif
 
 #include "imgui_impl_xplane.h"
 
@@ -12,6 +14,7 @@
 #include <XPLMDisplay.h>
 #include <XPLMPlugin.h>
 #include <XPLMUtilities.h>
+#include <XPLMGraphics.h>
 
 // ImGui core library
 #include <imgui.h>
@@ -22,8 +25,6 @@
 
 // Project-specific headers
 #include "XPlaneLog.h"
-
-#include "XPLMGraphics.h"
 
 // Logging macro for function calls with plugin name
 #define LOG_CALL(func, ...)                                            \
@@ -48,7 +49,7 @@ namespace ImGui
         int ImGuiRenderCallbackWrapper::s_nextId = 0;
 
         // Vector to store ImGui render callbacks
-        static std::vector<ImGuiRenderCallbackWrapper> g_ImGuiRenderCallbacks;
+        std::vector<ImGuiRenderCallbackWrapper> g_ImGuiRenderCallbacks;
 
         // Flag to check if the draw callback is registered
         static bool isDrawCallbackRegistered = false;
@@ -63,7 +64,7 @@ namespace ImGui
         // int g_menuBarHeight = 30; // Height of the menu bar
 
         // Update window geometry
-        static void UpdateWindowGeometry()
+        void UpdateWindowGeometry()
         {
             // Update g_WindowGeometry with the new geometry of the "Minimal Window"
             XPLMGetWindowGeometry(xplmWindowID, &g_WindowGeometry.left, &g_WindowGeometry.top, &g_WindowGeometry.right, &g_WindowGeometry.bottom);
@@ -73,7 +74,7 @@ namespace ImGui
         }
 
         // Callbacks
-        static int HandleMouseClickEvent(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus isDown, void *inRefcon)
+        int HandleMouseClickEvent(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus isDown, void *inRefcon)
         {
             // Update ImGui mouse position
             ImGuiIO &io = ImGui::GetIO();
@@ -133,7 +134,7 @@ namespace ImGui
             }
         }
 
-        static XPLMCursorStatus HandleCursorEvent(XPLMWindowID inWindowID, int x, int y, void *inRefcon)
+        XPLMCursorStatus HandleCursorEvent(XPLMWindowID inWindowID, int x, int y, void *inRefcon)
         {
             // Update ImGui mouse position
             ImGuiIO &io = ImGui::GetIO();
@@ -148,7 +149,8 @@ namespace ImGui
                 // Get the current ImGui mouse cursor
                 ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
 
-                // Map ImGui cursor to system cursor
+#ifdef _WIN32
+                // Map ImGui cursor to system cursor (Windows only)
                 switch (imgui_cursor)
                 {
                 case ImGuiMouseCursor_Arrow:
@@ -182,6 +184,8 @@ namespace ImGui
                     SetCursor(LoadCursor(NULL, IDC_ARROW));
                     break;
                 }
+#endif
+                // TODO: Implement cursor handling for macOS and Linux
 
                 return xplm_CursorCustom;
             }
@@ -194,7 +198,7 @@ namespace ImGui
             // Do not draw anything for transparency
         }
 
-        static int HandleRightClickEvent(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon)
+        int HandleRightClickEvent(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon)
         {
             // Update ImGui mouse position
             ImGuiIO &io = ImGui::GetIO();
@@ -227,7 +231,7 @@ namespace ImGui
             }
         }
 
-        static int HandleMouseWheelEvent(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon)
+        int HandleMouseWheelEvent(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon)
         {
             ImGuiIO &io = ImGui::GetIO();
             if (io.WantCaptureMouse)
@@ -238,7 +242,7 @@ namespace ImGui
             return 0; // Let the event pass through to the underlying application
         }
 
-        static void HandleKeyEvent(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus)
+        void HandleKeyEvent(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus)
         {
             ImGuiIO &io = ImGui::GetIO();
             // Ensure ImGui is capturing keyboard input
@@ -257,12 +261,14 @@ namespace ImGui
                 // Map X-Plane virtual keys to ImGui keys using a switch statement
                 switch (virtual_key)
                 {
+                    // Navigation keys
                     case XPLM_VK_TAB:            imguiKey = ImGuiKey_Tab; break;
                     case XPLM_VK_LEFT:           imguiKey = ImGuiKey_LeftArrow; break;
                     case XPLM_VK_RIGHT:          imguiKey = ImGuiKey_RightArrow; break;
                     case XPLM_VK_UP:             imguiKey = ImGuiKey_UpArrow; break;
                     case XPLM_VK_DOWN:           imguiKey = ImGuiKey_DownArrow; break;
                     case XPLM_VK_RETURN:         imguiKey = ImGuiKey_Enter; break;
+                    case XPLM_VK_ENTER:          imguiKey = ImGuiKey_KeypadEnter; break;
                     case XPLM_VK_BACK:           imguiKey = ImGuiKey_Backspace; break;
                     case XPLM_VK_ESCAPE:         imguiKey = ImGuiKey_Escape; break;
                     case XPLM_VK_INSERT:         imguiKey = ImGuiKey_Insert; break;
@@ -272,13 +278,111 @@ namespace ImGui
                     case XPLM_VK_NEXT:           imguiKey = ImGuiKey_PageDown; break;
                     case XPLM_VK_HOME:           imguiKey = ImGuiKey_Home; break;
                     case XPLM_VK_END:            imguiKey = ImGuiKey_End; break;
+                    
+                    // Alphabet keys (A-Z)
                     case XPLM_VK_A:              imguiKey = ImGuiKey_A; break;
                     case XPLM_VK_B:              imguiKey = ImGuiKey_B; break;
-                    // Add additional key mappings here...
+                    case XPLM_VK_C:              imguiKey = ImGuiKey_C; break;
+                    case XPLM_VK_D:              imguiKey = ImGuiKey_D; break;
+                    case XPLM_VK_E:              imguiKey = ImGuiKey_E; break;
+                    case XPLM_VK_F:              imguiKey = ImGuiKey_F; break;
+                    case XPLM_VK_G:              imguiKey = ImGuiKey_G; break;
+                    case XPLM_VK_H:              imguiKey = ImGuiKey_H; break;
+                    case XPLM_VK_I:              imguiKey = ImGuiKey_I; break;
+                    case XPLM_VK_J:              imguiKey = ImGuiKey_J; break;
+                    case XPLM_VK_K:              imguiKey = ImGuiKey_K; break;
+                    case XPLM_VK_L:              imguiKey = ImGuiKey_L; break;
+                    case XPLM_VK_M:              imguiKey = ImGuiKey_M; break;
+                    case XPLM_VK_N:              imguiKey = ImGuiKey_N; break;
+                    case XPLM_VK_O:              imguiKey = ImGuiKey_O; break;
+                    case XPLM_VK_P:              imguiKey = ImGuiKey_P; break;
+                    case XPLM_VK_Q:              imguiKey = ImGuiKey_Q; break;
+                    case XPLM_VK_R:              imguiKey = ImGuiKey_R; break;
+                    case XPLM_VK_S:              imguiKey = ImGuiKey_S; break;
+                    case XPLM_VK_T:              imguiKey = ImGuiKey_T; break;
+                    case XPLM_VK_U:              imguiKey = ImGuiKey_U; break;
+                    case XPLM_VK_V:              imguiKey = ImGuiKey_V; break;
+                    case XPLM_VK_W:              imguiKey = ImGuiKey_W; break;
+                    case XPLM_VK_X:              imguiKey = ImGuiKey_X; break;
+                    case XPLM_VK_Y:              imguiKey = ImGuiKey_Y; break;
+                    case XPLM_VK_Z:              imguiKey = ImGuiKey_Z; break;
+                    
+                    // Number keys (0-9)
+                    case XPLM_VK_0:              imguiKey = ImGuiKey_0; break;
+                    case XPLM_VK_1:              imguiKey = ImGuiKey_1; break;
+                    case XPLM_VK_2:              imguiKey = ImGuiKey_2; break;
+                    case XPLM_VK_3:              imguiKey = ImGuiKey_3; break;
+                    case XPLM_VK_4:              imguiKey = ImGuiKey_4; break;
+                    case XPLM_VK_5:              imguiKey = ImGuiKey_5; break;
+                    case XPLM_VK_6:              imguiKey = ImGuiKey_6; break;
+                    case XPLM_VK_7:              imguiKey = ImGuiKey_7; break;
+                    case XPLM_VK_8:              imguiKey = ImGuiKey_8; break;
+                    case XPLM_VK_9:              imguiKey = ImGuiKey_9; break;
+                    
+                    // Numpad keys
+                    case XPLM_VK_NUMPAD0:        imguiKey = ImGuiKey_Keypad0; break;
+                    case XPLM_VK_NUMPAD1:        imguiKey = ImGuiKey_Keypad1; break;
+                    case XPLM_VK_NUMPAD2:        imguiKey = ImGuiKey_Keypad2; break;
+                    case XPLM_VK_NUMPAD3:        imguiKey = ImGuiKey_Keypad3; break;
+                    case XPLM_VK_NUMPAD4:        imguiKey = ImGuiKey_Keypad4; break;
+                    case XPLM_VK_NUMPAD5:        imguiKey = ImGuiKey_Keypad5; break;
+                    case XPLM_VK_NUMPAD6:        imguiKey = ImGuiKey_Keypad6; break;
+                    case XPLM_VK_NUMPAD7:        imguiKey = ImGuiKey_Keypad7; break;
+                    case XPLM_VK_NUMPAD8:        imguiKey = ImGuiKey_Keypad8; break;
+                    case XPLM_VK_NUMPAD9:        imguiKey = ImGuiKey_Keypad9; break;
+                    case XPLM_VK_MULTIPLY:       imguiKey = ImGuiKey_KeypadMultiply; break;
+                    case XPLM_VK_ADD:            imguiKey = ImGuiKey_KeypadAdd; break;
+                    case XPLM_VK_SUBTRACT:       imguiKey = ImGuiKey_KeypadSubtract; break;
+                    case XPLM_VK_DECIMAL:        imguiKey = ImGuiKey_KeypadDecimal; break;
+                    case XPLM_VK_DIVIDE:         imguiKey = ImGuiKey_KeypadDivide; break;
+                    case XPLM_VK_NUMPAD_ENT:     imguiKey = ImGuiKey_KeypadEnter; break;
+                    case XPLM_VK_NUMPAD_EQ:      imguiKey = ImGuiKey_KeypadEqual; break;
+                    
+                    // Function keys (F1-F24)
+                    case XPLM_VK_F1:             imguiKey = ImGuiKey_F1; break;
+                    case XPLM_VK_F2:             imguiKey = ImGuiKey_F2; break;
+                    case XPLM_VK_F3:             imguiKey = ImGuiKey_F3; break;
+                    case XPLM_VK_F4:             imguiKey = ImGuiKey_F4; break;
+                    case XPLM_VK_F5:             imguiKey = ImGuiKey_F5; break;
+                    case XPLM_VK_F6:             imguiKey = ImGuiKey_F6; break;
+                    case XPLM_VK_F7:             imguiKey = ImGuiKey_F7; break;
+                    case XPLM_VK_F8:             imguiKey = ImGuiKey_F8; break;
+                    case XPLM_VK_F9:             imguiKey = ImGuiKey_F9; break;
+                    case XPLM_VK_F10:            imguiKey = ImGuiKey_F10; break;
+                    case XPLM_VK_F11:            imguiKey = ImGuiKey_F11; break;
+                    case XPLM_VK_F12:            imguiKey = ImGuiKey_F12; break;
+                    case XPLM_VK_F13:            imguiKey = ImGuiKey_F13; break;
+                    case XPLM_VK_F14:            imguiKey = ImGuiKey_F14; break;
+                    case XPLM_VK_F15:            imguiKey = ImGuiKey_F15; break;
+                    case XPLM_VK_F16:            imguiKey = ImGuiKey_F16; break;
+                    case XPLM_VK_F17:            imguiKey = ImGuiKey_F17; break;
+                    case XPLM_VK_F18:            imguiKey = ImGuiKey_F18; break;
+                    case XPLM_VK_F19:            imguiKey = ImGuiKey_F19; break;
+                    case XPLM_VK_F20:            imguiKey = ImGuiKey_F20; break;
+                    case XPLM_VK_F21:            imguiKey = ImGuiKey_F21; break;
+                    case XPLM_VK_F22:            imguiKey = ImGuiKey_F22; break;
+                    case XPLM_VK_F23:            imguiKey = ImGuiKey_F23; break;
+                    case XPLM_VK_F24:            imguiKey = ImGuiKey_F24; break;
+                    
+                    // Punctuation and symbol keys
+                    case XPLM_VK_EQUAL:          imguiKey = ImGuiKey_Equal; break;
+                    case XPLM_VK_MINUS:          imguiKey = ImGuiKey_Minus; break;
+                    case XPLM_VK_RBRACE:         imguiKey = ImGuiKey_RightBracket; break;
+                    case XPLM_VK_LBRACE:         imguiKey = ImGuiKey_LeftBracket; break;
+                    case XPLM_VK_QUOTE:          imguiKey = ImGuiKey_Apostrophe; break;
+                    case XPLM_VK_SEMICOLON:      imguiKey = ImGuiKey_Semicolon; break;
+                    case XPLM_VK_BACKSLASH:      imguiKey = ImGuiKey_Backslash; break;
+                    case XPLM_VK_COMMA:          imguiKey = ImGuiKey_Comma; break;
+                    case XPLM_VK_SLASH:          imguiKey = ImGuiKey_Slash; break;
+                    case XPLM_VK_PERIOD:         imguiKey = ImGuiKey_Period; break;
+                    case XPLM_VK_BACKQUOTE:      imguiKey = ImGuiKey_GraveAccent; break;
                     default: 
                     {
+                        // Ignore null virtual keys (normal when no key is pressed)
+                        if (virtual_key != 0) {
                         // Log the unrecognized key using the provided logger
                         XPlaneLog::info(("Unrecognized virtual key: " + std::to_string(virtual_key)).c_str());
+                        }
                         imguiKey = ImGuiKey_None; 
                         break; 
                     }
@@ -340,7 +444,7 @@ namespace ImGui
             }
         }
 
-        static void InitializeTransparentImGuiOverlay()
+        void InitializeTransparentImGuiOverlay()
         {
             XPLMCreateWindow_t params{};
             params.structSize = sizeof(params);
@@ -430,7 +534,7 @@ namespace ImGui
         }
 
         // Renders ImGui frame within OpenGL context
-        static int RenderImGuiFrame(XPLMDrawingPhase phase, int isBefore, void *refcon)
+        int RenderImGuiFrame(XPLMDrawingPhase phase, int isBefore, void *refcon)
         {
             BeginFrame();
 
@@ -494,6 +598,7 @@ namespace ImGui
             // Initialize ImGui for X-Plane OpenGL rendering
             IMGUI_CHECKVERSION();
             g_ImGuiContext = ImGui::CreateContext();
+            ImGui::SetCurrentContext(g_ImGuiContext);  // Critical: Set the context as current!
             ImGui_ImplOpenGL3_Init("#version 330");
 
             // Additional ImGui setup can be done here
@@ -612,7 +717,7 @@ namespace ImGui
             return nullptr; // or handle the case where the font is not found
         }
 
-        static void EnsureImGuiDrawCallbackRegistered()
+        void EnsureImGuiDrawCallbackRegistered()
         {
             if (!isDrawCallbackRegistered)
             {
@@ -621,7 +726,7 @@ namespace ImGui
             }
         }
 
-        static void EnsureImGuiDrawCallbackUnregistered()
+        void EnsureImGuiDrawCallbackUnregistered()
         {
             if (isDrawCallbackRegistered)
             {

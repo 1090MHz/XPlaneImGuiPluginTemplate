@@ -8,6 +8,7 @@
 
 // Third-Party Library Headers
 #include <spdlog/details/log_msg.h>          // For spdlog::details::log_msg
+#include <spdlog/pattern_formatter.h>        // For spdlog::pattern_formatter
 #include <spdlog/sinks/basic_file_sink.h>    // For spdlog::sinks::basic_file_sink_mt
 #include <spdlog/sinks/stdout_color_sinks.h> // For spdlog::sinks::stdout_color_sink_mt
 #include <spdlog/spdlog.h>                   // For spdlog logging functions
@@ -54,14 +55,28 @@ void XPlaneLog::init(const std::string &plugin_name)
     spdlog::sinks_init_list sink_list = {console_sink, file_sink, xplane_sink};
     logger = std::make_shared<spdlog::logger>(plugin_name, sink_list.begin(), sink_list.end());
 
-    // Provide a custom format for the logger
-
     // Set a custom formatter for the logger
     logger->set_formatter(std::make_unique<XPlaneLog::Formatter>());
+
+    // Register the logger with spdlog registry for future extensibility:
+    // - Allows retrieval by name using spdlog::get("plugin_name")
+    // - Enables multiple named loggers (e.g., separate loggers for different subsystems)
+    // - Facilitates different log files/sinks per component
+    spdlog::register_logger(logger);
 
     spdlog::set_default_logger(logger);
     spdlog::set_level(spdlog::level::debug); // Set global log level to debug
     spdlog::flush_on(spdlog::level::info);   // Flush logs on info level and higher
+}
+
+void XPlaneLog::shutdown()
+{
+    if (logger)
+    {
+        logger->flush();
+        spdlog::drop_all(); // Drops all registered loggers
+        logger = nullptr;
+    }
 }
 
 void XPlaneLog::trace(const std::string &message)
