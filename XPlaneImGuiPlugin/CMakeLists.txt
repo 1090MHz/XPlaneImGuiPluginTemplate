@@ -64,8 +64,10 @@ elseif(UNIX)
     # Add Linux-specific settings here
     add_definitions(-DLIN=1)
     find_package(OpenGL REQUIRED)
-    link_directories(../third_party/libs/XPSDK410/Libraries/Lin)
-    set(EXTRA_LIBS ${OPENGL_LIBRARIES} XPLM_64 XPWidgets_64)
+    # Link to the actual .so files directly
+    set(XPLM_LIB "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libs/XPSDK410/Libraries/Lin/XPLM_64.so")
+    set(XPWIDGETS_LIB "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libs/XPSDK410/Libraries/Lin/XPWidgets_64.so")
+    set(EXTRA_LIBS ${OPENGL_LIBRARIES} ${XPLM_LIB} ${XPWIDGETS_LIB})
 endif()
 
 # Create shared library (X-Plane plugin)
