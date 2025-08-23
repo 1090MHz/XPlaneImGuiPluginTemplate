@@ -27,12 +27,6 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Verify submodules
-      run: |
-        echo "Checking submodules..."
-        ls -la PreflightCheckLibs/
-        test -f "PreflightCheckLibs/docker-compose.yml"
-
     - name: Set up Docker (Windows/Linux)
       if: runner.os != 'macOS'
       uses: docker/setup-buildx-action@v3
