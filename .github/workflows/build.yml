@@ -80,6 +80,16 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libgl1-mesa-dev
 
+    - name: Verify OpenGL headers (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        echo "=== System OpenGL headers check ==="
+        find /usr/include -name "gl.h" -o -name "GL.h" 2>/dev/null | head -5
+        echo "=== Mesa GL headers ==="
+        ls -la /usr/include/GL/ 2>/dev/null || echo "No /usr/include/GL/ directory"
+        echo "=== pkg-config check ==="
+        pkg-config --cflags gl 2>/dev/null || echo "pkg-config gl not found"
+
     - name: Setup CMake
       uses: jwlawson/actions-setup-cmake@v1.14
       with:
@@ -92,7 +102,8 @@ jobs:
         if [ "${{ runner.os }}" = "Windows" ]; then
           cmake .. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release
         else
-          cmake .. -DCMAKE_BUILD_TYPE=Release
+          echo "=== CMake OpenGL discovery ==="
+          cmake .. -DCMAKE_BUILD_TYPE=Release --debug-output | grep -i opengl || true
         fi
       shell: bash
 
