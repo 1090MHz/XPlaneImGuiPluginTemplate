@@ -241,6 +241,7 @@ static void AddGlyphsToFontDefault()
         ICON_FA_ARROWS_ALT
         ICON_FA_BARS
         ICON_FA_BROADCAST_TOWER
+        ICON_FA_CHART_BAR
         ICON_FA_COG
         ICON_FA_DOWNLOAD
         ICON_FA_ELLIPSIS_H
@@ -256,6 +257,7 @@ static void AddGlyphsToFontDefault()
         ICON_FA_ID_CARD
         ICON_FA_INFO_CIRCLE
         ICON_FA_LIST
+        ICON_FA_PALETTE
         ICON_FA_PAPER_PLANE
         ICON_FA_PLANE
         ICON_FA_PLANE_ARRIVAL
@@ -266,6 +268,7 @@ static void AddGlyphsToFontDefault()
         ICON_FA_ROAD
         ICON_FA_SAVE
         ICON_FA_SEARCH
+        ICON_FA_SPINNER
         ICON_FA_SUITCASE
         ICON_FA_TIMES
         ICON_FA_USER_CIRCLE
