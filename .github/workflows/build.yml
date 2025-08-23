@@ -14,8 +14,10 @@ jobs:
     steps:
     - name: Setup dependencies with Docker
       run: |
-        mkdir -p third_party
-        docker run --rm -v $PWD/third_party:/output 1090mhz/preflightchecklibs:latest
+        docker run --rm \
+          -e EXPORT_BASE_DIR=/mnt/export \
+          -v $PWD/third_party:/mnt/export \
+          1090mhz/preflightchecklibs:latest
 
     - name: Upload dependencies
       uses: actions/upload-artifact@v4
