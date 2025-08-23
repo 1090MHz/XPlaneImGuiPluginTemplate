@@ -102,7 +102,9 @@ jobs:
         mkdir build
         cd build
         if [ "${{ runner.os }}" = "Windows" ]; then
+          echo "=== Starting Windows CMake configuration ==="
           cmake .. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release
+          echo "=== Windows CMake configuration completed ==="
         else
           echo "=== CMake OpenGL discovery ==="
           cmake .. -DCMAKE_BUILD_TYPE=Release --debug-output | grep -i opengl || true
@@ -112,7 +114,9 @@ jobs:
     - name: Build
       run: |
         cd build
+        echo "=== Starting build process ==="
         cmake --build . --config Release
+        echo "=== Build completed successfully ==="
 
     - name: Test install (create staging directory)
       run: |
