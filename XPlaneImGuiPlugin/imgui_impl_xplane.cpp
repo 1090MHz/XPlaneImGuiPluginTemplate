@@ -714,7 +714,7 @@ namespace ImGui
             return nullptr; // or handle the case where the font is not found
         }
 
-        static void EnsureImGuiDrawCallbackRegistered()
+        void EnsureImGuiDrawCallbackRegistered()
         {
             if (!isDrawCallbackRegistered)
             {
@@ -723,7 +723,7 @@ namespace ImGui
             }
         }
 
-        static void EnsureImGuiDrawCallbackUnregistered()
+        void EnsureImGuiDrawCallbackUnregistered()
         {
             if (isDrawCallbackRegistered)
             {
