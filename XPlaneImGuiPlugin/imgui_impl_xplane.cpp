@@ -595,6 +595,7 @@ namespace ImGui
             // Initialize ImGui for X-Plane OpenGL rendering
             IMGUI_CHECKVERSION();
             g_ImGuiContext = ImGui::CreateContext();
+            ImGui::SetCurrentContext(g_ImGuiContext);  // Critical: Set the context as current!
             ImGui_ImplOpenGL3_Init("#version 330");
 
             // Additional ImGui setup can be done here
