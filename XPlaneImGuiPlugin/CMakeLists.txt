@@ -6,8 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Require X-Plane SDK to be present
-if(NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libs/XPSDK410")
-    message(FATAL_ERROR "X-Plane SDK not found at ../third_party/libs/XPSDK410. Please ensure the SDK is properly installed.")
+set(XP_SDK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libs/XPSDK410")
+
+if(NOT IS_DIRECTORY "${XP_SDK_PATH}")
+    message(FATAL_ERROR "X-Plane SDK not found at ${XP_SDK_PATH}. Please ensure the SDK is properly installed.")
 endif()
 
 # Source files
