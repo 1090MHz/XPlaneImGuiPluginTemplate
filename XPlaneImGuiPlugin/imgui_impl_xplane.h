@@ -5,6 +5,7 @@
 #include <XPLMDisplay.h>
 
 // ImGui
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui.h"
 
 // Standard Library
