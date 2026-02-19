@@ -385,7 +385,7 @@ namespace ImGui
                         // Ignore null virtual keys (normal when no key is pressed)
                         if (virtual_key != 0) {
                         // Log the unrecognized key using the provided logger
-                        XPlaneLog::info(("Unrecognized virtual key: " + std::to_string(virtual_key)).c_str());
+                            XPlaneLog::warn(("Unrecognized virtual key: " + std::to_string(virtual_key)).c_str());
                         }
                         imguiKey = ImGuiKey_None; 
                         break; 
