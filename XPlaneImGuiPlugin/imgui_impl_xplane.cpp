@@ -689,7 +689,7 @@ namespace ImGui
 
             fontProfiles.push_back({name, fontPath, size});
 
-            // Construct the path to imgui.ini within the plugin's directory
+            // Construct the path to the plugin directory for font loading
             std::filesystem::path path(pluginPath.c_str());
             std::filesystem::path pluginFolder = path.parent_path();
 
