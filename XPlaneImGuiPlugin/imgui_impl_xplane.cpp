@@ -113,10 +113,6 @@ namespace ImGui
                 if (XPLMHasKeyboardFocus(inWindowID))
                 {
                     XPLMTakeKeyboardFocus(nullptr);
-
-                    // Get ImGui IO object
-                    ImGuiIO& io = ImGui::GetIO();
-                    
                     // Clear input keys (in case any are pending)
                     io.ClearInputKeys();
                     
