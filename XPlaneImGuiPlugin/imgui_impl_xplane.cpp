@@ -550,7 +550,22 @@ namespace ImGui
 
             EndFrame();
 
-            return 1;
+            // After ImGui has processed all events and rendered, check if we should release keyboard focus
+            // This handles the case where a popup was dismissed but we still hold XPLM keyboard focus
+            if (XPLMHasKeyboardFocus(xplmWindowID))
+            {
+                ImGuiIO& io = ImGui::GetIO();
+                
+                // If no ImGui window wants the mouse and no window is hovered, release focus
+                // This catches popup dismissals that happened during event processing
+                if (!io.WantCaptureMouse && !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow | ImGuiHoveredFlags_AllowWhenBlockedByPopup))
+                {
+                    XPLMTakeKeyboardFocus(nullptr);
+                    io.ClearInputKeys();
+                    io.ClearEventsQueue();
+                    ImGui::SetWindowFocus(nullptr);
+                }
+            }
         }
 
         // Function to set up the keymap
