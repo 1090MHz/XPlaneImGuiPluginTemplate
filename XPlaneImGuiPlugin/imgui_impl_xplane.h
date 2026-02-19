@@ -94,15 +94,10 @@ namespace ImGui
         // Frame Handling
         void BeginFrame(); // Begins a new ImGui frame. Used at the beginning of drawing callback.
         void EndFrame();   // Ends the current ImGui frame and renders it. Used at the end of drawing callback.
-        int RenderImGuiFrame(XPLMDrawingPhase phase, int isBefore, void *refcon);
 
         // Registering and Unregistering ImGui Render Callbacks
         void RegisterImGuiRenderCallback(ImGuiRenderCallbackWrapper callback);
         void UnregisterImGuiRenderCallback(ImGuiRenderCallback callback);
-
-        // Ensuring ImGui Draw Callback is Registered/Unregistered
-        void EnsureImGuiDrawCallbackRegistered();
-        void EnsureImGuiDrawCallbackUnregistered();
 
         // Window Management
         void UpdateWindowGeometry();

@@ -49,10 +49,7 @@ namespace ImGui
         int ImGuiRenderCallbackWrapper::s_nextId = 0;
 
         // Vector to store ImGui render callbacks
-        std::vector<ImGuiRenderCallbackWrapper> g_ImGuiRenderCallbacks;
-
-        // Flag to check if the draw callback is registered
-        static bool isDrawCallbackRegistered = false;
+        static std::vector<ImGuiRenderCallbackWrapper> g_ImGuiRenderCallbacks;
 
         // Structure to store loaded fonts
         LoadedFonts loadedFonts;
@@ -73,6 +70,9 @@ namespace ImGui
             g_WindowGeometry.height = g_WindowGeometry.top - g_WindowGeometry.bottom;
         }
 
+        // Forward declarations
+        static void RenderImGuiFrame();
+
         // Callbacks
         int HandleMouseClickEvent(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus isDown, void *inRefcon)
         {
@@ -88,6 +88,8 @@ namespace ImGui
                 if (isDown == xplm_MouseDown)
                 {
                     io.MouseDown[0] = true; // Left mouse button down
+                    // Bring window to front so it receives input above other plugins
+                    XPLMBringWindowToFront(inWindowID);
                     // Take keyboard focus when the mouse is clicked in an ImGui window
                     if (!XPLMHasKeyboardFocus(inWindowID))
                         XPLMTakeKeyboardFocus(inWindowID);
@@ -195,7 +197,9 @@ namespace ImGui
 
         static void DrawWindowCallback(XPLMWindowID inWindowID, void *inRefcon)
         {
-            // Do not draw anything for transparency
+            // Render ImGui content via window callback (not phase callback) so that
+            // X-Plane respects z-order when XPLMBringWindowToFront() is called
+            RenderImGuiFrame();
         }
 
         int HandleRightClickEvent(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon)
@@ -534,7 +538,8 @@ namespace ImGui
         }
 
         // Renders ImGui frame within OpenGL context
-        int RenderImGuiFrame(XPLMDrawingPhase phase, int isBefore, void *refcon)
+        // Called by DrawWindowCallback so rendering respects window z-order
+        static void RenderImGuiFrame()
         {
             BeginFrame();
 
@@ -703,7 +708,14 @@ namespace ImGui
 
         void BuildFontAtlas()
         {
+            // After adding fonts, we must rebuild the font atlas and recreate device objects
+            // so the OpenGL3 backend uploads the new combined font texture
             ImGui::GetIO().Fonts->Build();
+
+            // Destroy old GPU objects (font texture) and recreate with new atlas
+            ::ImGui_ImplOpenGL3_DestroyDeviceObjects();
+            ::ImGui_ImplOpenGL3_CreateDeviceObjects();
+
             XPlaneLog::info("Font atlas built successfully.");
         }
 
@@ -717,30 +729,8 @@ namespace ImGui
             return nullptr; // or handle the case where the font is not found
         }
 
-        void EnsureImGuiDrawCallbackRegistered()
-        {
-            if (!isDrawCallbackRegistered)
-            {
-                XPLMRegisterDrawCallback(RenderImGuiFrame, xplm_Phase_Window, 0, NULL);
-                isDrawCallbackRegistered = true;
-            }
-        }
-
-        void EnsureImGuiDrawCallbackUnregistered()
-        {
-            if (isDrawCallbackRegistered)
-            {
-                XPLMUnregisterDrawCallback(RenderImGuiFrame, xplm_Phase_Window, 0, NULL);
-                isDrawCallbackRegistered = false;
-            }
-        }
-
         void RegisterImGuiRenderCallback(ImGuiRenderCallbackWrapper callback)
         {
-            if (g_ImGuiRenderCallbacks.empty())
-            {
-                EnsureImGuiDrawCallbackRegistered();
-            }
             g_ImGuiRenderCallbacks.push_back(callback);
         }
 
@@ -751,10 +741,6 @@ namespace ImGui
             if (it != g_ImGuiRenderCallbacks.end())
             {
                 g_ImGuiRenderCallbacks.erase(it);
-                if (g_ImGuiRenderCallbacks.empty())
-                {
-                    EnsureImGuiDrawCallbackUnregistered();
-                }
             }
         }
 
