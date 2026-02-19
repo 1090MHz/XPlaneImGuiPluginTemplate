@@ -110,6 +110,23 @@ namespace ImGui
         int HandleMouseWheelEvent(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon);
         void HandleKeyEvent(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus);
 
+        // Keyboard Event Callback Hook
+        // Callback type for key event notifications
+        // Called AFTER ImGui processes the key, allowing application to inspect ImGui's response
+        // Parameters:
+        //   - key: The ImGuiKey enum value that was sent to ImGui
+        //   - keyDown: true if key pressed, false if released
+        //   - character: The original character code from X-Plane (for printable chars)
+        //   - io: Reference to ImGuiIO for inspecting WantTextInput, NavActive, etc.
+        typedef void (*ImGuiKeyEventCallback)(ImGuiKey key, bool keyDown, char character, ImGuiIO& io);
+
+        // Set optional callback to receive key events after ImGui processes them
+        // Pass nullptr to unregister
+        void SetKeyEventCallback(ImGuiKeyEventCallback callback);
+
+        // Request keyboard focus release (can be called from within callback)
+        void ReleaseKeyboardFocus();
+
     } // namespace XP
 
 } // namespace ImGui

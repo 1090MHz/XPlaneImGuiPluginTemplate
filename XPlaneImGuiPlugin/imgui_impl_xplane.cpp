@@ -57,6 +57,9 @@ namespace ImGui
         // Global font profiles
         std::vector<FontProfile> fontProfiles;
 
+        // Optional callback for key event notifications (after ImGui processes them)
+        static ImGuiKeyEventCallback g_KeyEventCallback = nullptr;
+
         // Caution: The menu bar height is not included in the screen height and it may vary across platforms
         // int g_menuBarHeight = 30; // Height of the menu bar
 
@@ -392,6 +395,13 @@ namespace ImGui
                 if (imguiKey != ImGuiKey_None)
                 {
                     io.AddKeyEvent(imguiKey, keyDown);
+                    
+                    // Invoke optional application callback AFTER ImGui processes the key
+                    // This allows the application to inspect ImGui's state and decide if the key was used
+                    if (g_KeyEventCallback != nullptr)
+                    {
+                        g_KeyEventCallback(imguiKey, keyDown, key, io);
+                    }
                 }
         
                 // Handle character input for text input fields
@@ -752,6 +762,26 @@ namespace ImGui
             if (it != g_ImGuiRenderCallbacks.end())
             {
                 g_ImGuiRenderCallbacks.erase(it);
+            }
+        }
+
+        // Set optional callback to receive key events after ImGui processes them
+        void SetKeyEventCallback(ImGuiKeyEventCallback callback)
+        {
+            g_KeyEventCallback = callback;
+        }
+
+        void ReleaseKeyboardFocus()
+        {
+            if (xplmWindowID && XPLMHasKeyboardFocus(xplmWindowID))
+            {
+                XPLMTakeKeyboardFocus(nullptr);
+                
+                // Clear ImGui input state
+                ImGuiIO& io = ImGui::GetIO();
+                io.ClearInputKeys();
+                io.ClearEventsQueue();
+                ImGui::SetWindowFocus(nullptr);
             }
         }
 
