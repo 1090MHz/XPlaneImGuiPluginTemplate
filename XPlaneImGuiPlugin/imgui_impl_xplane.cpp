@@ -61,7 +61,7 @@ namespace ImGui
         // int g_menuBarHeight = 30; // Height of the menu bar
 
         // Update window geometry
-        void UpdateWindowGeometry()
+        static void UpdateWindowGeometry()
         {
             // Update g_WindowGeometry with the new geometry of the "Minimal Window"
             XPLMGetWindowGeometry(xplmWindowID, &g_WindowGeometry.left, &g_WindowGeometry.top, &g_WindowGeometry.right, &g_WindowGeometry.bottom);
@@ -74,7 +74,7 @@ namespace ImGui
         static void RenderImGuiFrame();
 
         // Callbacks
-        int HandleMouseClickEvent(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus isDown, void *inRefcon)
+        static int HandleMouseClickEvent(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus isDown, void *inRefcon)
         {
             // Update ImGui mouse position
             ImGuiIO &io = ImGui::GetIO();
@@ -136,7 +136,7 @@ namespace ImGui
             }
         }
 
-        XPLMCursorStatus HandleCursorEvent(XPLMWindowID inWindowID, int x, int y, void *inRefcon)
+        static XPLMCursorStatus HandleCursorEvent(XPLMWindowID inWindowID, int x, int y, void *inRefcon)
         {
             // Update ImGui mouse position
             ImGuiIO &io = ImGui::GetIO();
@@ -202,7 +202,7 @@ namespace ImGui
             RenderImGuiFrame();
         }
 
-        int HandleRightClickEvent(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon)
+        static int HandleRightClickEvent(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon)
         {
             // Update ImGui mouse position
             ImGuiIO &io = ImGui::GetIO();
@@ -235,7 +235,7 @@ namespace ImGui
             }
         }
 
-        int HandleMouseWheelEvent(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon)
+        static int HandleMouseWheelEvent(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon)
         {
             ImGuiIO &io = ImGui::GetIO();
             if (io.WantCaptureMouse)
@@ -246,7 +246,7 @@ namespace ImGui
             return 0; // Let the event pass through to the underlying application
         }
 
-        void HandleKeyEvent(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus)
+        static void HandleKeyEvent(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus)
         {
             ImGuiIO &io = ImGui::GetIO();
             // Ensure ImGui is capturing keyboard input
@@ -448,7 +448,7 @@ namespace ImGui
             }
         }
 
-        void InitializeTransparentImGuiOverlay()
+        static void InitializeTransparentImGuiOverlay()
         {
             XPLMCreateWindow_t params{};
             params.structSize = sizeof(params);
