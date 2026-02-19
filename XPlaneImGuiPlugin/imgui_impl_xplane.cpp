@@ -671,26 +671,6 @@ namespace ImGui
             icons_config.GlyphMinAdvanceX = font_pixel_size * glyphMinAdvanceXFactor;
 
             io.Fonts->AddFontFromMemoryCompressedTTF(font_data, font_size, font_pixel_size, &icons_config, glyphs_ranges);
-
-            // Build the font atlas
-            unsigned char *tex_pixels = nullptr;
-            int tex_width, tex_height;
-            io.Fonts->GetTexDataAsRGBA32(&tex_pixels, &tex_width, &tex_height);
-
-            // Generate texture ID using X-Plane's function
-            int textureID;
-            XPLMGenerateTextureNumbers(&textureID, 1);
-
-            // Bind the texture using X-Plane's function
-            XPLMBindTexture2d(textureID, 0);
-
-            // Upload the texture to the generated texture ID
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_pixels);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-            // Set the texture ID in ImGui
-            io.Fonts->TexID = (ImTextureID)(intptr_t)textureID;
         }
 
         ImFont *LoadFontProfile(const std::string &name, const std::string &fontPath, float size)
