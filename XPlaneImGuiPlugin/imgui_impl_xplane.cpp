@@ -49,10 +49,7 @@ namespace ImGui
         int ImGuiRenderCallbackWrapper::s_nextId = 0;
 
         // Vector to store ImGui render callbacks
-        std::vector<ImGuiRenderCallbackWrapper> g_ImGuiRenderCallbacks;
-
-        // Flag to check if the draw callback is registered
-        static bool isDrawCallbackRegistered = false;
+        static std::vector<ImGuiRenderCallbackWrapper> g_ImGuiRenderCallbacks;
 
         // Structure to store loaded fonts
         LoadedFonts loadedFonts;
@@ -60,11 +57,14 @@ namespace ImGui
         // Global font profiles
         std::vector<FontProfile> fontProfiles;
 
+        // Optional callback for key event notifications (after ImGui processes them)
+        static ImGuiKeyEventCallback g_KeyEventCallback = nullptr;
+
         // Caution: The menu bar height is not included in the screen height and it may vary across platforms
         // int g_menuBarHeight = 30; // Height of the menu bar
 
         // Update window geometry
-        void UpdateWindowGeometry()
+        static void UpdateWindowGeometry()
         {
             // Update g_WindowGeometry with the new geometry of the "Minimal Window"
             XPLMGetWindowGeometry(xplmWindowID, &g_WindowGeometry.left, &g_WindowGeometry.top, &g_WindowGeometry.right, &g_WindowGeometry.bottom);
@@ -73,8 +73,11 @@ namespace ImGui
             g_WindowGeometry.height = g_WindowGeometry.top - g_WindowGeometry.bottom;
         }
 
+        // Forward declarations
+        static void RenderImGuiFrame();
+
         // Callbacks
-        int HandleMouseClickEvent(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus isDown, void *inRefcon)
+        static int HandleMouseClickEvent(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus isDown, void *inRefcon)
         {
             // Update ImGui mouse position
             ImGuiIO &io = ImGui::GetIO();
@@ -88,6 +91,8 @@ namespace ImGui
                 if (isDown == xplm_MouseDown)
                 {
                     io.MouseDown[0] = true; // Left mouse button down
+                    // Bring window to front so it receives input above other plugins
+                    XPLMBringWindowToFront(inWindowID);
                     // Take keyboard focus when the mouse is clicked in an ImGui window
                     if (!XPLMHasKeyboardFocus(inWindowID))
                         XPLMTakeKeyboardFocus(inWindowID);
@@ -111,10 +116,6 @@ namespace ImGui
                 if (XPLMHasKeyboardFocus(inWindowID))
                 {
                     XPLMTakeKeyboardFocus(nullptr);
-
-                    // Get ImGui IO object
-                    ImGuiIO& io = ImGui::GetIO();
-                    
                     // Clear input keys (in case any are pending)
                     io.ClearInputKeys();
                     
@@ -134,7 +135,7 @@ namespace ImGui
             }
         }
 
-        XPLMCursorStatus HandleCursorEvent(XPLMWindowID inWindowID, int x, int y, void *inRefcon)
+        static XPLMCursorStatus HandleCursorEvent(XPLMWindowID inWindowID, int x, int y, void *inRefcon)
         {
             // Update ImGui mouse position
             ImGuiIO &io = ImGui::GetIO();
@@ -195,10 +196,12 @@ namespace ImGui
 
         static void DrawWindowCallback(XPLMWindowID inWindowID, void *inRefcon)
         {
-            // Do not draw anything for transparency
+            // Render ImGui content via window callback (not phase callback) so that
+            // X-Plane respects z-order when XPLMBringWindowToFront() is called
+            RenderImGuiFrame();
         }
 
-        int HandleRightClickEvent(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon)
+        static int HandleRightClickEvent(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon)
         {
             // Update ImGui mouse position
             ImGuiIO &io = ImGui::GetIO();
@@ -231,7 +234,7 @@ namespace ImGui
             }
         }
 
-        int HandleMouseWheelEvent(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon)
+        static int HandleMouseWheelEvent(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon)
         {
             ImGuiIO &io = ImGui::GetIO();
             if (io.WantCaptureMouse)
@@ -242,7 +245,7 @@ namespace ImGui
             return 0; // Let the event pass through to the underlying application
         }
 
-        void HandleKeyEvent(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus)
+        static void HandleKeyEvent(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus)
         {
             ImGuiIO &io = ImGui::GetIO();
             // Ensure ImGui is capturing keyboard input
@@ -381,7 +384,7 @@ namespace ImGui
                         // Ignore null virtual keys (normal when no key is pressed)
                         if (virtual_key != 0) {
                         // Log the unrecognized key using the provided logger
-                        XPlaneLog::info(("Unrecognized virtual key: " + std::to_string(virtual_key)).c_str());
+                            XPlaneLog::warn(("Unrecognized virtual key: " + std::to_string(virtual_key)).c_str());
                         }
                         imguiKey = ImGuiKey_None; 
                         break; 
@@ -392,6 +395,13 @@ namespace ImGui
                 if (imguiKey != ImGuiKey_None)
                 {
                     io.AddKeyEvent(imguiKey, keyDown);
+                    
+                    // Invoke optional application callback AFTER ImGui processes the key
+                    // This allows the application to inspect ImGui's state and decide if the key was used
+                    if (g_KeyEventCallback != nullptr)
+                    {
+                        g_KeyEventCallback(imguiKey, keyDown, key, io);
+                    }
                 }
         
                 // Handle character input for text input fields
@@ -444,7 +454,7 @@ namespace ImGui
             }
         }
 
-        void InitializeTransparentImGuiOverlay()
+        static void InitializeTransparentImGuiOverlay()
         {
             XPLMCreateWindow_t params{};
             params.structSize = sizeof(params);
@@ -534,7 +544,8 @@ namespace ImGui
         }
 
         // Renders ImGui frame within OpenGL context
-        int RenderImGuiFrame(XPLMDrawingPhase phase, int isBefore, void *refcon)
+        // Called by DrawWindowCallback so rendering respects window z-order
+        static void RenderImGuiFrame()
         {
             BeginFrame();
 
@@ -549,7 +560,22 @@ namespace ImGui
 
             EndFrame();
 
-            return 1;
+            // After ImGui has processed all events and rendered, check if we should release keyboard focus
+            // This handles the case where a popup was dismissed but we still hold XPLM keyboard focus
+            if (XPLMHasKeyboardFocus(xplmWindowID))
+            {
+                ImGuiIO& io = ImGui::GetIO();
+                
+                // If no ImGui window wants the mouse and no window is hovered, release focus
+                // This catches popup dismissals that happened during event processing
+                if (!io.WantCaptureMouse && !ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow | ImGuiHoveredFlags_AllowWhenBlockedByPopup))
+                {
+                    XPLMTakeKeyboardFocus(nullptr);
+                    io.ClearInputKeys();
+                    io.ClearEventsQueue();
+                    ImGui::SetWindowFocus(nullptr);
+                }
+            }
         }
 
         // Function to set up the keymap
@@ -595,21 +621,6 @@ namespace ImGui
 
             InitializeTransparentImGuiOverlay();
 
-            // Initialize ImGui for X-Plane OpenGL rendering
-            IMGUI_CHECKVERSION();
-            g_ImGuiContext = ImGui::CreateContext();
-            ImGui::SetCurrentContext(g_ImGuiContext);  // Critical: Set the context as current!
-            ImGui_ImplOpenGL3_Init("#version 330");
-
-            // Additional ImGui setup can be done here
-
-            // Setup Dear ImGui style - uncomment the style you want to use
-            ImGui::StyleColorsDark();
-            // ImGui::StyleColorsClassic();
-            // ImGui::StyleColorsLight();
-
-            // SetupKeyMap(); // Needed to map X-Plane key codes to ImGui key codes
-
             // Determine the plugin's directory
             // Initialize pluginPath with a size of 512
             // Ensure that the path is null-terminated and has enough space for the full path
@@ -627,9 +638,28 @@ namespace ImGui
 
             static std::string iniPath_string = iniPath.string();
 
-            // Set ImGui to save its configuration to the constructed path
+            // Initialize ImGui for X-Plane OpenGL rendering
+            IMGUI_CHECKVERSION();
+            g_ImGuiContext = ImGui::CreateContext();
+            ImGui::SetCurrentContext(g_ImGuiContext);  // Critical: Set the context as current!
+            
+            // Set ImGui ini file path BEFORE any other ImGui operations
             ImGuiIO &io = ImGui::GetIO();
             io.IniFilename = iniPath_string.c_str();
+            
+            // Enable keyboard navigation (required for Tab, arrow keys to work)
+            io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+            
+            ImGui_ImplOpenGL3_Init("#version 330");
+
+            // Additional ImGui setup can be done here
+
+            // Setup Dear ImGui style - uncomment the style you want to use
+            ImGui::StyleColorsDark();
+            // ImGui::StyleColorsClassic();
+            // ImGui::StyleColorsLight();
+
+            // SetupKeyMap(); // Needed to map X-Plane key codes to ImGui key codes
 
             XPlaneLog::info("ImGui initialized for X-Plane.");
         }
@@ -645,26 +675,6 @@ namespace ImGui
             icons_config.GlyphMinAdvanceX = font_pixel_size * glyphMinAdvanceXFactor;
 
             io.Fonts->AddFontFromMemoryCompressedTTF(font_data, font_size, font_pixel_size, &icons_config, glyphs_ranges);
-
-            // Build the font atlas
-            unsigned char *tex_pixels = nullptr;
-            int tex_width, tex_height;
-            io.Fonts->GetTexDataAsRGBA32(&tex_pixels, &tex_width, &tex_height);
-
-            // Generate texture ID using X-Plane's function
-            int textureID;
-            XPLMGenerateTextureNumbers(&textureID, 1);
-
-            // Bind the texture using X-Plane's function
-            XPLMBindTexture2d(textureID, 0);
-
-            // Upload the texture to the generated texture ID
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex_width, tex_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex_pixels);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-            // Set the texture ID in ImGui
-            io.Fonts->TexID = (ImTextureID)(intptr_t)textureID;
         }
 
         ImFont *LoadFontProfile(const std::string &name, const std::string &fontPath, float size)
@@ -673,7 +683,7 @@ namespace ImGui
 
             fontProfiles.push_back({name, fontPath, size});
 
-            // Construct the path to imgui.ini within the plugin's directory
+            // Construct the path to the plugin directory for font loading
             std::filesystem::path path(pluginPath.c_str());
             std::filesystem::path pluginFolder = path.parent_path();
 
@@ -703,7 +713,14 @@ namespace ImGui
 
         void BuildFontAtlas()
         {
+            // After adding fonts, we must rebuild the font atlas and recreate device objects
+            // so the OpenGL3 backend uploads the new combined font texture
             ImGui::GetIO().Fonts->Build();
+
+            // Destroy old GPU objects (font texture) and recreate with new atlas
+            ::ImGui_ImplOpenGL3_DestroyDeviceObjects();
+            ::ImGui_ImplOpenGL3_CreateDeviceObjects();
+
             XPlaneLog::info("Font atlas built successfully.");
         }
 
@@ -717,30 +734,8 @@ namespace ImGui
             return nullptr; // or handle the case where the font is not found
         }
 
-        void EnsureImGuiDrawCallbackRegistered()
-        {
-            if (!isDrawCallbackRegistered)
-            {
-                XPLMRegisterDrawCallback(RenderImGuiFrame, xplm_Phase_Window, 0, NULL);
-                isDrawCallbackRegistered = true;
-            }
-        }
-
-        void EnsureImGuiDrawCallbackUnregistered()
-        {
-            if (isDrawCallbackRegistered)
-            {
-                XPLMUnregisterDrawCallback(RenderImGuiFrame, xplm_Phase_Window, 0, NULL);
-                isDrawCallbackRegistered = false;
-            }
-        }
-
         void RegisterImGuiRenderCallback(ImGuiRenderCallbackWrapper callback)
         {
-            if (g_ImGuiRenderCallbacks.empty())
-            {
-                EnsureImGuiDrawCallbackRegistered();
-            }
             g_ImGuiRenderCallbacks.push_back(callback);
         }
 
@@ -751,10 +746,26 @@ namespace ImGui
             if (it != g_ImGuiRenderCallbacks.end())
             {
                 g_ImGuiRenderCallbacks.erase(it);
-                if (g_ImGuiRenderCallbacks.empty())
-                {
-                    EnsureImGuiDrawCallbackUnregistered();
-                }
+            }
+        }
+
+        // Set optional callback to receive key events after ImGui processes them
+        void SetKeyEventCallback(ImGuiKeyEventCallback callback)
+        {
+            g_KeyEventCallback = callback;
+        }
+
+        void ReleaseKeyboardFocus()
+        {
+            if (xplmWindowID && XPLMHasKeyboardFocus(xplmWindowID))
+            {
+                XPLMTakeKeyboardFocus(nullptr);
+                
+                // Clear ImGui input state
+                ImGuiIO& io = ImGui::GetIO();
+                io.ClearInputKeys();
+                io.ClearEventsQueue();
+                ImGui::SetWindowFocus(nullptr);
             }
         }
 
