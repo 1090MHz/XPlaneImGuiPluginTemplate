@@ -621,21 +621,6 @@ namespace ImGui
 
             InitializeTransparentImGuiOverlay();
 
-            // Initialize ImGui for X-Plane OpenGL rendering
-            IMGUI_CHECKVERSION();
-            g_ImGuiContext = ImGui::CreateContext();
-            ImGui::SetCurrentContext(g_ImGuiContext);  // Critical: Set the context as current!
-            ImGui_ImplOpenGL3_Init("#version 330");
-
-            // Additional ImGui setup can be done here
-
-            // Setup Dear ImGui style - uncomment the style you want to use
-            ImGui::StyleColorsDark();
-            // ImGui::StyleColorsClassic();
-            // ImGui::StyleColorsLight();
-
-            // SetupKeyMap(); // Needed to map X-Plane key codes to ImGui key codes
-
             // Determine the plugin's directory
             // Initialize pluginPath with a size of 512
             // Ensure that the path is null-terminated and has enough space for the full path
@@ -653,9 +638,28 @@ namespace ImGui
 
             static std::string iniPath_string = iniPath.string();
 
-            // Set ImGui to save its configuration to the constructed path
+            // Initialize ImGui for X-Plane OpenGL rendering
+            IMGUI_CHECKVERSION();
+            g_ImGuiContext = ImGui::CreateContext();
+            ImGui::SetCurrentContext(g_ImGuiContext);  // Critical: Set the context as current!
+            
+            // Set ImGui ini file path BEFORE any other ImGui operations
             ImGuiIO &io = ImGui::GetIO();
             io.IniFilename = iniPath_string.c_str();
+            
+            // Enable keyboard navigation (required for Tab, arrow keys to work)
+            io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+            
+            ImGui_ImplOpenGL3_Init("#version 330");
+
+            // Additional ImGui setup can be done here
+
+            // Setup Dear ImGui style - uncomment the style you want to use
+            ImGui::StyleColorsDark();
+            // ImGui::StyleColorsClassic();
+            // ImGui::StyleColorsLight();
+
+            // SetupKeyMap(); // Needed to map X-Plane key codes to ImGui key codes
 
             XPlaneLog::info("ImGui initialized for X-Plane.");
         }
