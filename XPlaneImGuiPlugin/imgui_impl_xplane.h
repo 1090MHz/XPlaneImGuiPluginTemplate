@@ -66,8 +66,6 @@ namespace ImGui
 
         typedef ImGuiRenderCallbackWrapper ImGuiRenderCallback;
 
-        extern std::vector<ImGuiRenderCallbackWrapper> g_ImGuiRenderCallbacks;
-
         // Initialization and Shutdown
         void Init();        // Initialize ImGui for X-Plane. Add to XPluginStart.
         // void SetupKeyMap(); // Setup key map for ImGui. Used in Init.
@@ -98,17 +96,6 @@ namespace ImGui
         // Registering and Unregistering ImGui Render Callbacks
         void RegisterImGuiRenderCallback(ImGuiRenderCallbackWrapper callback);
         void UnregisterImGuiRenderCallback(ImGuiRenderCallback callback);
-
-        // Window Management
-        void UpdateWindowGeometry();
-        void InitializeTransparentImGuiOverlay();
-
-        // Event Handling
-        int HandleMouseClickEvent(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus isDown, void *inRefcon);
-        int HandleRightClickEvent(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon);
-        XPLMCursorStatus HandleCursorEvent(XPLMWindowID inWindowID, int x, int y, void *inRefcon);
-        int HandleMouseWheelEvent(XPLMWindowID in_window_id, int x, int y, int wheel, int clicks, void *in_refcon);
-        void HandleKeyEvent(XPLMWindowID in_window_id, char key, XPLMKeyFlags flags, char virtual_key, void *in_refcon, int losing_focus);
 
         // Keyboard Event Callback Hook
         // Callback type for key event notifications
