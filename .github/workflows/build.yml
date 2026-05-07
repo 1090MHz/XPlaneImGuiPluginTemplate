@@ -57,7 +57,6 @@ jobs:
     needs: setup-dependencies
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
         include:
           - os: windows-latest
@@ -77,14 +76,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: third_party
-        path: .
-
-    - name: Verify downloaded dependencies
-      shell: bash
-      run: |
-        echo "=== third_party top-level layout ==="
-        find third_party -maxdepth 3 | sort | head -40
-        test -d third_party/libs/XPSDK430/CHeaders/XPLM || { echo "ERROR: XPSDK430 not found at expected path"; exit 1; }
+        path: third_party/
 
     - name: Install OpenGL dev libraries (Linux)
       if: runner.os == 'Linux'
