@@ -402,3 +402,6 @@ build/*
 
 # Ignore third_party folder
 third_party/*
+
+# Ignore VS Code settings
+.vscode/settings.json
