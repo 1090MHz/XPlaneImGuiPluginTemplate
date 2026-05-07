@@ -17,7 +17,7 @@ jobs:
 
     - name: Cache dependencies
       id: cache-deps
-      uses: actions/cache@v3
+      uses: actions/cache@v5
       with:
         path: third_party
         key: dependencies-v1-${{ hashFiles('PreflightCheckLibs/**') }}
@@ -93,7 +93,7 @@ jobs:
         pkg-config --cflags gl 2>/dev/null || echo "pkg-config gl not found"
 
     - name: Setup CMake
-      uses: jwlawson/actions-setup-cmake@v2.0
+      uses: jwlawson/actions-setup-cmake@v2.2
       with:
         cmake-version: '3.25'
 
