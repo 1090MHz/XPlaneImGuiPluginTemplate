@@ -124,8 +124,6 @@ xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Regular.ttf" "C:\X-Pla
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>OpenGL32.Lib;XPLM_64.lib;XPWidgets_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\SDK\Libraries\Win</AdditionalLibraryDirectories>
@@ -180,8 +178,6 @@ xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Regular.ttf" "C:\X-Pla
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>OpenGL32.Lib;XPLM_64.lib;XPWidgets_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\third_party\libs\XPSDK410\Libraries\Win</AdditionalLibraryDirectories>
