@@ -76,7 +76,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: third_party
-        path: third_party/
+        path: .
 
     - name: Install OpenGL dev libraries (Linux)
       if: runner.os == 'Linux'
