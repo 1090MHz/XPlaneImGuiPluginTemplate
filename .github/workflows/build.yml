@@ -37,7 +37,7 @@ jobs:
         echo "=== Checking third_party structure ==="
         find third_party -type f -name "*.h" | head -10
         echo "=== X-Plane SDK check ==="
-        ls -la third_party/libs/XPSDK410/CHeaders/XPLM/ || echo "X-Plane SDK not found"
+        ls -la third_party/libs/XPSDK430/CHeaders/XPLM/ || echo "X-Plane SDK not found"
         echo "=== Font check ==="
         ls -la third_party/fonts/ || echo "Fonts not found"
         echo "=== Total files created ==="
