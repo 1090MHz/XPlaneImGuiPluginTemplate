@@ -14,10 +14,12 @@ jobs:
     steps:
     - name: Checkout code (for cache key)
       uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
     - name: Cache dependencies
       id: cache-deps
-      uses: actions/cache@v3
+      uses: actions/cache@v5
       with:
         path: third_party
         key: dependencies-v3-${{ hashFiles('PreflightCheckLibs/**') }}
@@ -55,6 +57,7 @@ jobs:
     needs: setup-dependencies
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: windows-latest
@@ -74,7 +77,14 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: third_party
-        path: third_party
+        path: .
+
+    - name: Verify downloaded dependencies
+      shell: bash
+      run: |
+        echo "=== third_party top-level layout ==="
+        find third_party -maxdepth 3 | sort | head -40
+        test -d third_party/libs/XPSDK430/CHeaders/XPLM || { echo "ERROR: XPSDK430 not found at expected path"; exit 1; }
 
     - name: Install OpenGL dev libraries (Linux)
       if: runner.os == 'Linux'
@@ -93,7 +103,7 @@ jobs:
         pkg-config --cflags gl 2>/dev/null || echo "pkg-config gl not found"
 
     - name: Setup CMake
-      uses: jwlawson/actions-setup-cmake@v2.0
+      uses: jwlawson/actions-setup-cmake@v2.2
       with:
         cmake-version: '3.25'
 
@@ -102,12 +112,9 @@ jobs:
         mkdir build
         cd build
         if [ "${{ runner.os }}" = "Windows" ]; then
-          echo "=== Starting Windows CMake configuration ==="
           cmake .. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release
-          echo "=== Windows CMake configuration completed ==="
         else
-          echo "=== CMake OpenGL discovery ==="
-          cmake .. -DCMAKE_BUILD_TYPE=Release --debug-output | grep -i opengl || true
+          cmake .. -DCMAKE_BUILD_TYPE=Release
         fi
       shell: bash
 
