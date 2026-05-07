@@ -86,9 +86,9 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>IBM;XPLM400;XPLM302;XPLM301;XPLM300;XPLM210;XPLM200</PreprocessorDefinitions>
+      <PreprocessorDefinitions>IBM;XPLM430;XPLM420;XPLM411;XPLM400;XPLM303;XPLM302;XPLM301;XPLM300;XPLM210;XPLM200;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\SDK\CHeaders\XPLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\IconFontCppHeaders;..\third_party\libs\XPSDK430\CHeaders\XPLM;</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;6285;26498;26800</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -98,7 +98,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>OpenGL32.Lib;XPLM_64.lib;XPWidgets_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\SDK\Libraries\Win</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\third_party\libs\XPSDK430\Libraries\Win</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(TargetPath)" "C:\X-Plane 12\Resources\plugins\$(TargetName)\win_x64\" /Y /I
@@ -114,9 +114,9 @@ xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Regular.ttf" "C:\X-Pla
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>IBM;XPLM400;XPLM302;XPLM301;XPLM300;XPLM210;XPLM200</PreprocessorDefinitions>
+      <PreprocessorDefinitions>IBM;XPLM430;XPLM420;XPLM411;XPLM400;XPLM303;XPLM302;XPLM301;XPLM300;XPLM210;XPLM200;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\SDK\CHeaders\XPLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\IconFontCppHeaders;..\third_party\libs\XPSDK430\CHeaders\XPLM;</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;6285;26498;26800</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -126,7 +126,7 @@ xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Regular.ttf" "C:\X-Pla
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>OpenGL32.Lib;XPLM_64.lib;XPWidgets_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\SDK\Libraries\Win</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\third_party\libs\XPSDK430\Libraries\Win</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(TargetPath)" "C:\X-Plane 12\Resources\plugins\$(TargetName)\win_x64\" /Y /I
@@ -140,9 +140,9 @@ xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Regular.ttf" "C:\X-Pla
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>IBM;XPLM400;XPLM302;XPLM301;XPLM300;XPLM210;XPLM200</PreprocessorDefinitions>
+      <PreprocessorDefinitions>IBM;XPLM430;XPLM420;XPLM411;XPLM400;XPLM303;XPLM302;XPLM301;XPLM300;XPLM210;XPLM200;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\IconFontCppHeaders;..\third_party\libs\XPSDK410\CHeaders\XPLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\IconFontCppHeaders;..\third_party\libs\XPSDK430\CHeaders\XPLM;</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;6285;26498;26800</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -152,7 +152,7 @@ xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Regular.ttf" "C:\X-Pla
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>OpenGL32.Lib;XPLM_64.lib;XPWidgets_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\third_party\libs\XPSDK410\Libraries\Win</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\third_party\libs\XPSDK430\Libraries\Win</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(TargetPath)" "C:\X-Plane 12\Resources\plugins\$(TargetName)\win_x64\" /Y /I
@@ -168,9 +168,9 @@ xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Regular.ttf" "C:\X-Pla
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>IBM;XPLM400;XPLM302;XPLM301;XPLM300;XPLM210;XPLM200</PreprocessorDefinitions>
+      <PreprocessorDefinitions>IBM;XPLM430;XPLM420;XPLM411;XPLM400;XPLM303;XPLM302;XPLM301;XPLM300;XPLM210;XPLM200;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\IconFontCppHeaders;..\third_party\libs\XPSDK410\CHeaders\XPLM;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\IconFontCppHeaders;..\third_party\libs\XPSDK430\CHeaders\XPLM;</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;6285;26498;26800</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -180,7 +180,7 @@ xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Regular.ttf" "C:\X-Pla
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>OpenGL32.Lib;XPLM_64.lib;XPWidgets_64.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\third_party\libs\XPSDK410\Libraries\Win</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\third_party\libs\XPSDK430\Libraries\Win</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(TargetPath)" "C:\X-Plane 12\Resources\plugins\$(TargetName)\win_x64\" /Y /I
