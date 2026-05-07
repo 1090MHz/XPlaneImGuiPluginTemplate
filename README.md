@@ -39,7 +39,7 @@ EXPORT_BASE_DIR="../third_party" docker-compose -f ./PreflightCheckLibs/docker-c
 ```
 
 This will create the `third_party` directory with:
-- X-Plane SDK (XPSDK410)
+- X-Plane SDK (XPSDK430)
 - libcurl
 - Required fonts (Open Sans, Droid Sans Mono)
 - Other dependencies

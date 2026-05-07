@@ -6,10 +6,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Require X-Plane SDK to be present
-set(XP_SDK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libs/XPSDK410")
+set(XPSDK_VERSION "XPSDK430")
+set(XPSDK_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libs/${XPSDK_VERSION}")
 
-if(NOT IS_DIRECTORY "${XP_SDK_PATH}")
-    message(FATAL_ERROR "X-Plane SDK not found at ${XP_SDK_PATH}. Please ensure the SDK is properly installed.")
+if(NOT IS_DIRECTORY "${XPSDK_PATH}")
+    message(FATAL_ERROR "X-Plane SDK not found at ${XPSDK_PATH}. Please ensure the SDK is properly installed.")
 endif()
 
 # Source files
@@ -43,7 +44,7 @@ include_directories(
 )
 
 # Add X-Plane SDK (SDK presence already verified above)
-include_directories(../third_party/libs/XPSDK410/CHeaders/XPLM)
+include_directories(${XPSDK_PATH}/CHeaders/XPLM)
 
 # X-Plane SDK version definitions (needed for all platforms)
 add_definitions(-DXPLM400 -DXPLM302 -DXPLM301 -DXPLM300 -DXPLM210 -DXPLM200)
@@ -52,23 +53,23 @@ add_definitions(-DXPLM400 -DXPLM302 -DXPLM301 -DXPLM300 -DXPLM210 -DXPLM200)
 if(WIN32)
     # Add Windows-specific settings here
     add_definitions(-DIBM=1)
-    link_directories(../third_party/libs/XPSDK410/Libraries/Win)
+    link_directories(${XPSDK_PATH}/Libraries/Win)
     set(EXTRA_LIBS OpenGL32 XPLM_64 XPWidgets_64)
 elseif(APPLE)
     # Add macOS-specific settings here
     add_definitions(-DAPL=1)
     find_library(COCOA_LIBRARY Cocoa)
     find_library(OPENGL_LIBRARY OpenGL)
-    find_library(XPLM_LIBRARY XPLM PATHS ../third_party/libs/XPSDK410/Libraries/Mac)
-    find_library(XPWIDGETS_LIBRARY XPWidgets PATHS ../third_party/libs/XPSDK410/Libraries/Mac)
+    find_library(XPLM_LIBRARY XPLM PATHS ${XPSDK_PATH}/Libraries/Mac)
+    find_library(XPWIDGETS_LIBRARY XPWidgets PATHS ${XPSDK_PATH}/Libraries/Mac)
     set(EXTRA_LIBS ${COCOA_LIBRARY} ${OPENGL_LIBRARY} ${XPLM_LIBRARY} ${XPWIDGETS_LIBRARY})
 elseif(UNIX)
     # Add Linux-specific settings here
     add_definitions(-DLIN=1)
     find_package(OpenGL REQUIRED)
     # Link to the actual .so files directly
-    set(XPLM_LIB "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libs/XPSDK410/Libraries/Lin/XPLM_64.so")
-    set(XPWIDGETS_LIB "${CMAKE_CURRENT_SOURCE_DIR}/../third_party/libs/XPSDK410/Libraries/Lin/XPWidgets_64.so")
+    set(XPLM_LIB "${XPSDK_PATH}/Libraries/Lin/XPLM_64.so")
+    set(XPWIDGETS_LIB "${XPSDK_PATH}/Libraries/Lin/XPWidgets_64.so")
     set(EXTRA_LIBS ${OPENGL_LIBRARIES} ${XPLM_LIB} ${XPWIDGETS_LIB})
 endif()
 
