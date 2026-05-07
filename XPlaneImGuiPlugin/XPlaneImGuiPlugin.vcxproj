@@ -92,6 +92,7 @@
       <DisableSpecificWarnings>4996;6285;26498;26800</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -100,7 +101,11 @@
       <AdditionalLibraryDirectories>..\SDK\Libraries\Win</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y /I "$(TargetDir)$(TargetName).xpl" "C:\X-Plane 12\Resources\plugins\$(ProjectName)\win_x64\"</Command>
+      <Command>xcopy "$(TargetPath)" "C:\X-Plane 12\Resources\plugins\$(TargetName)\win_x64\" /Y /I
+xcopy "$(SolutionDir)third_party\fonts\droid-sans-mono\DroidSansMono.ttf" "C:\X-Plane 12\Resources\plugins\$(TargetName)\third_party\fonts\droid-sans-mono\" /Y /I
+xcopy "$(SolutionDir)third_party\fonts\droid-sans-mono\LICENSE.txt" "C:\X-Plane 12\Resources\plugins\$(TargetName)\third_party\fonts\droid-sans-mono\" /Y /I
+xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Bold.ttf" "C:\X-Plane 12\Resources\plugins\$(TargetName)\third_party\fonts\open-sans\" /Y /I
+xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Regular.ttf" "C:\X-Plane 12\Resources\plugins\$(TargetName)\third_party\fonts\open-sans\" /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -115,6 +120,7 @@
       <DisableSpecificWarnings>4996;6285;26498;26800</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,7 +131,11 @@
       <AdditionalLibraryDirectories>..\SDK\Libraries\Win</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y /I "$(TargetDir)$(TargetName).xpl" "C:\X-Plane 12\Resources\plugins\$(ProjectName)\win_x64\"</Command>
+      <Command>xcopy "$(TargetPath)" "C:\X-Plane 12\Resources\plugins\$(TargetName)\win_x64\" /Y /I
+xcopy "$(SolutionDir)third_party\fonts\droid-sans-mono\DroidSansMono.ttf" "C:\X-Plane 12\Resources\plugins\$(TargetName)\third_party\fonts\droid-sans-mono\" /Y /I
+xcopy "$(SolutionDir)third_party\fonts\droid-sans-mono\LICENSE.txt" "C:\X-Plane 12\Resources\plugins\$(TargetName)\third_party\fonts\droid-sans-mono\" /Y /I
+xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Bold.ttf" "C:\X-Plane 12\Resources\plugins\$(TargetName)\third_party\fonts\open-sans\" /Y /I
+xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Regular.ttf" "C:\X-Plane 12\Resources\plugins\$(TargetName)\third_party\fonts\open-sans\" /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -138,6 +148,7 @@
       <DisableSpecificWarnings>4996;6285;26498;26800</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,7 +157,11 @@
       <AdditionalLibraryDirectories>..\third_party\libs\XPSDK410\Libraries\Win</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y /I "$(TargetDir)$(TargetName).xpl" "C:\X-Plane 12\Resources\plugins\$(ProjectName)\win_x64\"</Command>
+      <Command>xcopy "$(TargetPath)" "C:\X-Plane 12\Resources\plugins\$(TargetName)\win_x64\" /Y /I
+xcopy "$(SolutionDir)third_party\fonts\droid-sans-mono\DroidSansMono.ttf" "C:\X-Plane 12\Resources\plugins\$(TargetName)\third_party\fonts\droid-sans-mono\" /Y /I
+xcopy "$(SolutionDir)third_party\fonts\droid-sans-mono\LICENSE.txt" "C:\X-Plane 12\Resources\plugins\$(TargetName)\third_party\fonts\droid-sans-mono\" /Y /I
+xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Bold.ttf" "C:\X-Plane 12\Resources\plugins\$(TargetName)\third_party\fonts\open-sans\" /Y /I
+xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Regular.ttf" "C:\X-Plane 12\Resources\plugins\$(TargetName)\third_party\fonts\open-sans\" /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -161,6 +176,7 @@
       <DisableSpecificWarnings>4996;6285;26498;26800</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -171,7 +187,11 @@
       <AdditionalLibraryDirectories>..\third_party\libs\XPSDK410\Libraries\Win</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /Y /I "$(TargetDir)$(TargetName).xpl" "C:\X-Plane 12\Resources\plugins\$(ProjectName)\win_x64\"</Command>
+      <Command>xcopy "$(TargetPath)" "C:\X-Plane 12\Resources\plugins\$(TargetName)\win_x64\" /Y /I
+xcopy "$(SolutionDir)third_party\fonts\droid-sans-mono\DroidSansMono.ttf" "C:\X-Plane 12\Resources\plugins\$(TargetName)\third_party\fonts\droid-sans-mono\" /Y /I
+xcopy "$(SolutionDir)third_party\fonts\droid-sans-mono\LICENSE.txt" "C:\X-Plane 12\Resources\plugins\$(TargetName)\third_party\fonts\droid-sans-mono\" /Y /I
+xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Bold.ttf" "C:\X-Plane 12\Resources\plugins\$(TargetName)\third_party\fonts\open-sans\" /Y /I
+xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Regular.ttf" "C:\X-Plane 12\Resources\plugins\$(TargetName)\third_party\fonts\open-sans\" /Y /I</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

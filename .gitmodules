@@ -10,3 +10,6 @@
 [submodule "IconFontCppHeaders"]
 	path = IconFontCppHeaders
 	url = https://github.com/juliettef/IconFontCppHeaders.git
+[submodule "XPlaneUtilities"]
+	path = XPlaneUtilities
+	url = https://github.com/1090MHz/XPlaneUtilities.git
