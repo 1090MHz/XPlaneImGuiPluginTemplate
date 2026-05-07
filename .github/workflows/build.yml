@@ -14,10 +14,12 @@ jobs:
     steps:
     - name: Checkout code (for cache key)
       uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
     - name: Cache dependencies
       id: cache-deps
-      uses: actions/cache@v3
+      uses: actions/cache@v5
       with:
         path: third_party
         key: dependencies-v3-${{ hashFiles('PreflightCheckLibs/**') }}
@@ -35,7 +37,7 @@ jobs:
     - name: Verify dependencies were created
       run: |
         echo "=== Checking third_party structure ==="
-        find third_party -type f -name "*.h" | head -10
+        find third_party -type f -name "*.h" | sed -n '1,10p'
         echo "=== X-Plane SDK check ==="
         ls -la third_party/libs/XPSDK430/CHeaders/XPLM/ || echo "X-Plane SDK not found"
         echo "=== Font check ==="
@@ -55,6 +57,7 @@ jobs:
     needs: setup-dependencies
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: windows-latest
@@ -76,6 +79,13 @@ jobs:
         name: third_party
         path: third_party
 
+    - name: Verify downloaded dependencies
+      shell: bash
+      run: |
+        echo "=== third_party top-level layout ==="
+        find third_party -maxdepth 3 | sort | sed -n '1,40p'
+        test -d third_party/libs/XPSDK430/CHeaders/XPLM || { echo "ERROR: XPSDK430 not found at expected path"; exit 1; }
+
     - name: Install OpenGL dev libraries (Linux)
       if: runner.os == 'Linux'
       run: |
@@ -86,14 +96,14 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         echo "=== System OpenGL headers check ==="
-        find /usr/include -name "gl.h" -o -name "GL.h" 2>/dev/null | head -5
+        find /usr/include -name "gl.h" -o -name "GL.h" 2>/dev/null | sed -n '1,5p'
         echo "=== Mesa GL headers ==="
         ls -la /usr/include/GL/ 2>/dev/null || echo "No /usr/include/GL/ directory"
         echo "=== pkg-config check ==="
         pkg-config --cflags gl 2>/dev/null || echo "pkg-config gl not found"
 
     - name: Setup CMake
-      uses: jwlawson/actions-setup-cmake@v2.0
+      uses: jwlawson/actions-setup-cmake@v2.2
       with:
         cmake-version: '3.25'
 
@@ -102,12 +112,9 @@ jobs:
         mkdir build
         cd build
         if [ "${{ runner.os }}" = "Windows" ]; then
-          echo "=== Starting Windows CMake configuration ==="
           cmake .. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release
-          echo "=== Windows CMake configuration completed ==="
         else
-          echo "=== CMake OpenGL discovery ==="
-          cmake .. -DCMAKE_BUILD_TYPE=Release --debug-output | grep -i opengl || true
+          cmake .. -DCMAKE_BUILD_TYPE=Release
         fi
       shell: bash
 
