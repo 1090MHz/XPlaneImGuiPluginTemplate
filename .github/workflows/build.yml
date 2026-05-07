@@ -37,7 +37,7 @@ jobs:
     - name: Verify dependencies were created
       run: |
         echo "=== Checking third_party structure ==="
-        find third_party -type f -name "*.h" | head -10
+        find third_party -type f -name "*.h" | sed -n '1,10p'
         echo "=== X-Plane SDK check ==="
         ls -la third_party/libs/XPSDK430/CHeaders/XPLM/ || echo "X-Plane SDK not found"
         echo "=== Font check ==="
@@ -83,7 +83,7 @@ jobs:
       shell: bash
       run: |
         echo "=== third_party top-level layout ==="
-        find third_party -maxdepth 3 | sort | head -40
+        find third_party -maxdepth 3 | sort | sed -n '1,40p'
         test -d third_party/libs/XPSDK430/CHeaders/XPLM || { echo "ERROR: XPSDK430 not found at expected path"; exit 1; }
 
     - name: Install OpenGL dev libraries (Linux)
@@ -96,7 +96,7 @@ jobs:
       if: runner.os == 'Linux'
       run: |
         echo "=== System OpenGL headers check ==="
-        find /usr/include -name "gl.h" -o -name "GL.h" 2>/dev/null | head -5
+        find /usr/include -name "gl.h" -o -name "GL.h" 2>/dev/null | sed -n '1,5p'
         echo "=== Mesa GL headers ==="
         ls -la /usr/include/GL/ 2>/dev/null || echo "No /usr/include/GL/ directory"
         echo "=== pkg-config check ==="
