@@ -14,15 +14,17 @@ jobs:
     steps:
     - name: Checkout code (for cache key)
       uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
     - name: Cache dependencies
       id: cache-deps
       uses: actions/cache@v5
       with:
         path: third_party
-        key: dependencies-v1-${{ hashFiles('PreflightCheckLibs/**') }}
+        key: dependencies-v2-${{ hashFiles('PreflightCheckLibs/**') }}
         restore-keys: |
-          dependencies-v1-
+          dependencies-v2-
 
     - name: Setup dependencies with Docker
       if: steps.cache-deps.outputs.cache-hit != 'true'
