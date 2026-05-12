@@ -80,8 +80,10 @@ namespace ImGui
         static int HandleMouseClickEvent(XPLMWindowID inWindowID, int x, int y, XPLMMouseStatus isDown, void *inRefcon)
         {
             // Update ImGui mouse position
+            // X-Plane modern window callbacks deliver coordinates in global desktop boxels,
+            // with origin at the bottom-left and y increasing upward.
+            // ImGui uses a top-left origin with y increasing downward, so flip y.
             ImGuiIO &io = ImGui::GetIO();
-            // Invert the Y-axis to match ImGui's coordinate system
             io.MousePos = ImVec2(static_cast<float>(x), static_cast<float>(g_WindowGeometry.top - y));
 
             // Determine if the mouse is over any ImGui content
@@ -137,9 +139,8 @@ namespace ImGui
 
         static XPLMCursorStatus HandleCursorEvent(XPLMWindowID inWindowID, int x, int y, void *inRefcon)
         {
-            // Update ImGui mouse position
+            // Update ImGui mouse position (same boxel-to-ImGui flip as in HandleMouseClickEvent)
             ImGuiIO &io = ImGui::GetIO();
-            // Invert the Y-axis to match ImGui's coordinate system
             io.MousePos = ImVec2(static_cast<float>(x), static_cast<float>(g_WindowGeometry.top - y));
 
             // Determine if the mouse is over any ImGui content
@@ -203,9 +204,8 @@ namespace ImGui
 
         static int HandleRightClickEvent(XPLMWindowID in_window_id, int x, int y, int is_down, void *in_refcon)
         {
-            // Update ImGui mouse position
+            // Update ImGui mouse position (same boxel-to-ImGui flip as in HandleMouseClickEvent)
             ImGuiIO &io = ImGui::GetIO();
-            // Invert the Y-axis to match ImGui's coordinate system
             io.MousePos = ImVec2(static_cast<float>(x), static_cast<float>(g_WindowGeometry.top - y));
 
             // Determine if the mouse is over any ImGui content
@@ -476,29 +476,27 @@ namespace ImGui
             // params.decorateAsFloatingWindow = xplm_WindowDecorationSelfDecorated; // Self-decorated window
             // params.decorateAsFloatingWindow = xplm_WindowDecorationSelfDecoratedResizable; // Self-decorated resizable window
 
-            // Initialize the window boundaries.
-            // Relying on the lower-left corner of the primary monitor being at (0, 0) is not advisable.
-            // It is necessary to obtain the global desktop dimensions.
+            // Use XPLMGetScreenBoundsGlobal exclusively for window geometry.
+            // These coordinates are in "boxels" — the same unit system used by
+            // XPLMCreateWindowEx callbacks on all X-Plane versions.
+            // Do NOT mix with XPLMGetScreenSize(), which returns raw pixels and
+            // diverges from boxels when X-Plane 11 UI scaling is active.
             int left, bottom, right, top;
             XPLMGetScreenBoundsGlobal(&left, &top, &right, &bottom);
 
-            // Retrieve the screen width and height
-            int screenWidth, screenHeight;
-            XPLMGetScreenSize(&screenWidth, &screenHeight);
-
-            // Full screen window
-            params.left = left + 0;
-            params.bottom = bottom + 0;
-            params.right = params.left + screenWidth;
-            params.top = params.bottom + screenHeight;
+            // Full screen window covering the entire global desktop
+            params.left   = left;
+            params.bottom = bottom;
+            params.right  = right;
+            params.top    = top;
 
             // Ensure geometry is updated before window creation so that it is available in callbacks
-            g_WindowGeometry.width = screenWidth;
-            g_WindowGeometry.height = screenHeight;
-            g_WindowGeometry.left = params.left;
-            g_WindowGeometry.top = params.top;
-            g_WindowGeometry.right = params.right;
-            g_WindowGeometry.bottom = params.bottom;
+            g_WindowGeometry.left   = left;
+            g_WindowGeometry.bottom = bottom;
+            g_WindowGeometry.right  = right;
+            g_WindowGeometry.top    = top;
+            g_WindowGeometry.width  = right - left;
+            g_WindowGeometry.height = top - bottom;
 
             // Create the window
             xplmWindowID = XPLMCreateWindowEx(&params);
@@ -507,14 +505,23 @@ namespace ImGui
         // Prepare ImGui for a new frame in the X-Plane environment
         static void NewFrame()
         {
-            // Adapt ImGui to the current display size and DPI settings of X-Plane
-            // This might involve querying X-Plane for the current window size and passing it to ImGui
-            int windowWidth, windowHeight;
-            XPLMGetScreenSize(&windowWidth, &windowHeight);
-            ImGui::GetIO().DisplaySize = ImVec2((float)windowWidth, (float)windowHeight);
+            // Use XPLMGetScreenBoundsGlobal so DisplaySize is in the same boxel
+            // coordinate space as the window callback coordinates.
+            // XPLMGetScreenSize() returns raw pixels and diverges from boxels
+            // under X-Plane 11 UI scaling, causing hit-test mismatches.
+            int left, bottom, right, top;
+            XPLMGetScreenBoundsGlobal(&left, &top, &right, &bottom);
 
-            // Start a new ImGui frame after adapting to X-Plane's environment
-            // ImGui::NewFrame();
+            // Keep g_WindowGeometry in sync so the Y-flip in mouse callbacks is correct.
+            g_WindowGeometry.left   = left;
+            g_WindowGeometry.top    = top;
+            g_WindowGeometry.right  = right;
+            g_WindowGeometry.bottom = bottom;
+            g_WindowGeometry.width  = right - left;
+            g_WindowGeometry.height = top - bottom;
+
+            ImGui::GetIO().DisplaySize = ImVec2(static_cast<float>(g_WindowGeometry.width),
+                                                static_cast<float>(g_WindowGeometry.height));
         }
 
         // Initializes a new ImGui frame. Call this at the beginning of your drawing callback.
