@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Add subdirectories
+add_subdirectory(XPlaneUtilities)
 add_subdirectory(XPlaneImGuiPlugin)
 
 # Optional: Add other subdirectories if needed in the future

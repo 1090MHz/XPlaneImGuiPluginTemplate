@@ -7,8 +7,8 @@
 
 // Project-Specific Headers
 #include "imgui_impl_xplane.h"
-#include "MenuHandler.h"
-#include "XPlaneLog.h"
+#include <XPlaneUtilities/MenuHandler.h>
+#include <XPlaneUtilities/XPlaneLog.h>
 #include "../third_party/fonts/fontawesome/fa-solid-900.inc"
 
 // X-Plane SDK Headers
