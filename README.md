@@ -19,6 +19,20 @@ This project uses CMake for cross-platform building and supports Windows, Linux,
   - macOS: Xcode 10+
 - **Docker** (for dependency management)
 
+### Initialize Submodules
+
+This repository uses git submodules for third-party components. Initialize them before setting up dependencies or building.
+
+**If you are cloning the repository for the first time:**
+```bash
+git clone --recurse-submodules https://github.com/1090MHz/XPlaneImGuiPluginTemplate.git
+```
+
+**If you already cloned without submodules:**
+```bash
+git submodule update --init --recursive
+```
+
 ### Setup Dependencies
 
 First, set up the required libraries and fonts using the PreflightCheckLibs submodule:

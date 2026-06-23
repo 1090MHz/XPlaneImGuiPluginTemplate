@@ -24,7 +24,7 @@
 #include <backends/imgui_impl_opengl3_loader.h> // required for OpenGL3 loader: glTexImage2D, glTexParameteri, etc.
 
 // Project-specific headers
-#include "XPlaneLog.h"
+#include <XPlaneUtilities/XPlaneLog.h>
 
 // Logging macro for function calls with plugin name
 #define LOG_CALL(func, ...)                                            \

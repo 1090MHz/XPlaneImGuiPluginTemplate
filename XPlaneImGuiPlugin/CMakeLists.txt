@@ -16,9 +16,7 @@ endif()
 # Source files
 set(SOURCES
     imgui_impl_xplane.cpp
-    MenuHandler.cpp
     XPlaneImGui.cpp
-    XPlaneLog.cpp
     ../imgui/backends/imgui_impl_opengl3.cpp
     ../imgui/imgui.cpp
     ../imgui/imgui_demo.cpp
@@ -30,8 +28,6 @@ set(SOURCES
 # Header files
 set(HEADERS
     imgui_impl_xplane.h
-    MenuHandler.h
-    XPlaneLog.h
     ../imgui/imgui.h
     ../imgui/backends/imgui_impl_opengl3.h
 )
@@ -41,6 +37,7 @@ include_directories(
     ../imgui
     ../spdlog/include
     ../IconFontCppHeaders
+    ../XPlaneUtilities/include
 )
 
 # Add X-Plane SDK (SDK presence already verified above)
@@ -77,7 +74,7 @@ endif()
 add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 
 # Link libraries
-target_link_libraries(${PROJECT_NAME} PRIVATE ${EXTRA_LIBS})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${EXTRA_LIBS} XPlaneUtilities)
 
 # Set output name to .xpl for X-Plane plugin
 set_target_properties(${PROJECT_NAME} PROPERTIES

@@ -88,7 +88,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>IBM;XPLM430;XPLM420;XPLM411;XPLM400;XPLM303;XPLM302;XPLM301;XPLM300;XPLM210;XPLM200;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\IconFontCppHeaders;..\third_party\libs\XPSDK430\CHeaders\XPLM;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\IconFontCppHeaders;..\XPlaneUtilities\include;..\third_party\libs\XPSDK430\CHeaders\XPLM;</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;6285;26498;26800</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -116,7 +116,7 @@ xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Regular.ttf" "C:\X-Pla
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>IBM;XPLM430;XPLM420;XPLM411;XPLM400;XPLM303;XPLM302;XPLM301;XPLM300;XPLM210;XPLM200;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\IconFontCppHeaders;..\third_party\libs\XPSDK430\CHeaders\XPLM;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\IconFontCppHeaders;..\XPlaneUtilities\include;..\third_party\libs\XPSDK430\CHeaders\XPLM;</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;6285;26498;26800</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -142,7 +142,7 @@ xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Regular.ttf" "C:\X-Pla
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>IBM;XPLM430;XPLM420;XPLM411;XPLM400;XPLM303;XPLM302;XPLM301;XPLM300;XPLM210;XPLM200;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\IconFontCppHeaders;..\third_party\libs\XPSDK430\CHeaders\XPLM;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\IconFontCppHeaders;..\XPlaneUtilities\include;..\third_party\libs\XPSDK430\CHeaders\XPLM;</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;6285;26498;26800</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -170,7 +170,7 @@ xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Regular.ttf" "C:\X-Pla
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>IBM;XPLM430;XPLM420;XPLM411;XPLM400;XPLM303;XPLM302;XPLM301;XPLM300;XPLM210;XPLM200;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\IconFontCppHeaders;..\third_party\libs\XPSDK430\CHeaders\XPLM;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\imgui;..\spdlog\include;..\IconFontCppHeaders;..\XPlaneUtilities\include;..\third_party\libs\XPSDK430\CHeaders\XPLM;</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;6285;26498;26800</DisableSpecificWarnings>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
@@ -198,9 +198,7 @@ xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Regular.ttf" "C:\X-Pla
     <ClCompile Include="..\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\imgui\imgui_widgets.cpp" />
     <ClCompile Include="imgui_impl_xplane.cpp" />
-    <ClCompile Include="MenuHandler.cpp" />
     <ClCompile Include="XPlaneImGui.cpp" />
-    <ClCompile Include="XPlaneLog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\imgui\backends\imgui_impl_opengl3.h" />
@@ -208,6 +206,11 @@ xcopy "$(SolutionDir)third_party\fonts\open-sans\OpenSans-Regular.ttf" "C:\X-Pla
     <ClInclude Include="imgui_impl_xplane.h" />
     <ClInclude Include="MenuHandler.h" />
     <ClInclude Include="XPlaneLog.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\XPlaneUtilities\XPlaneUtilities.vcxproj">
+      <Project>{1c088283-aff5-4a73-840f-7fb99ff0cc3d}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
